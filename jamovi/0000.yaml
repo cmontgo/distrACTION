@@ -13,9 +13,8 @@ maintainer: Boris Mayer <boris.mayer@unibe.ch>
 date: '2023-08-16'
 type: R
 description: >-
-  A tool for calculating and plotting the cumulative distribution function (CDF)
-  and the quantile function (Inverse CDF) for a number of discrete and
-  continuous distributions.
+  A tool for calculating and plotting probabilities and quantiles  (cumulative
+  and central) for a number of continuous and discrete distributions. 
 analyses:
   - title: Normal Distribution
     name: Normaldistribution
