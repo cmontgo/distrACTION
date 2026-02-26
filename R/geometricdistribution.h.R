@@ -116,18 +116,18 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                 rows=2,
                 columns=list(
                     list(
-                        `name`="ParametersColumn",
-                        `title`="Parameters",
+                        `name`="ParametersColumn", 
+                        `title`="Parameters", 
                         `type`="text"),
                     list(
-                        `name`="DistributionFunctionColumn",
-                        `title`="'Compute probability'",
-                        `type`="text",
+                        `name`="DistributionFunctionColumn", 
+                        `title`="'Compute probability'", 
+                        `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileFunctionColumn",
-                        `title`="'Compute quantile(s)'",
-                        `type`="text",
+                        `name`="QuantileFunctionColumn", 
+                        `title`="'Compute quantile(s)'", 
+                        `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -140,38 +140,38 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                     "varEq"),
                 columns=list(
                     list(
-                        `name`="DistributionResultColumn",
-                        `title`="Probability",
-                        `type`="number",
-                        `format`="zto",
+                        `name`="DistributionResultColumn", 
+                        `title`="Probability", 
+                        `type`="number", 
+                        `format`="zto", 
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileResultColumn",
-                        `title`="x1",
-                        `type`="integer",
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"cumulative\")",
+                        `name`="QuantileResultColumn", 
+                        `title`="x1", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"cumulative\")", 
                         `superTitle`="Quantile"),
                     list(
-                        `name`="QuantileLowerResultColumn",
-                        `title`="x1",
-                        `type`="integer",
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
+                        `name`="QuantileLowerResultColumn", 
+                        `title`="x1", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="QuantileUpperResultColumn",
-                        `title`="x2",
-                        `type`="integer",
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
+                        `name`="QuantileUpperResultColumn", 
+                        `title`="x2", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="MeanColumn",
-                        `title`="Mean",
-                        `type`="text",
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="SDColumn",
-                        `title`="SD",
-                        `type`="text",
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -204,7 +204,7 @@ GeometricDistributionBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
 
 #' Geometric Distribution
 #'
-#'
+#' 
 #' @param DistributionFunction .
 #' @param QuantileFunction .
 #' @param QuantileFunctionType .
@@ -217,7 +217,6 @@ GeometricDistributionBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
 #' \tabular{llllll}{
 #'   \code{results$Inputs} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$Outputs} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$Stats} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plot} \tab \tab \tab \tab \tab an image \cr
 #' }
 #'

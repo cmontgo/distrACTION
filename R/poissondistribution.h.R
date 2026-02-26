@@ -133,20 +133,20 @@ PoissonDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6:
                         `format`="zto", 
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileResultColumn",
-                        `title`="x1",
-                        `type`="integer",
-                        `visible`="(QuantileFunction)",
+                        `name`="QuantileResultColumn", 
+                        `title`="x1", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction)", 
                         `superTitle`="Quantile"),
                     list(
-                        `name`="MeanColumn",
-                        `title`="Mean",
-                        `type`="text",
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="SDColumn",
-                        `title`="SD",
-                        `type`="text",
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,

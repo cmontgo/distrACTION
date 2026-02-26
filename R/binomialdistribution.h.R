@@ -164,20 +164,20 @@ BinomialDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
                         `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="QuantileUpperResultColumn",
-                        `title`="x2",
-                        `type`="integer",
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
+                        `name`="QuantileUpperResultColumn", 
+                        `title`="x2", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="MeanColumn",
-                        `title`="Mean",
-                        `type`="text",
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="SDColumn",
-                        `title`="SD",
-                        `type`="text",
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
                         `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,

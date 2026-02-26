@@ -22,42 +22,49 @@ analyses:
     menuGroup: distrACTION
     menuTitle: Normal Distribution
     menuSubgroup: Continuous distributions
+    category: analyses
   - title: T-Distribution
     name: TDistribution
     ns: distrACTION
     menuGroup: distrACTION
     menuTitle: T-Distribution
     menuSubgroup: Continuous distributions
+    category: analyses
   - title: χ2-Distribution
     name: Chi2Distribution
     ns: distrACTION
     menuGroup: distrACTION
     menuTitle: χ2-Distribution
     menuSubgroup: Continuous distributions
+    category: analyses
   - title: F-Distribution
     name: FDistribution
     ns: distrACTION
     menuGroup: distrACTION
     menuTitle: F-Distribution
     menuSubgroup: Continuous distributions
+    category: analyses
   - title: Binomial Distribution
     name: BinomialDistribution
     ns: distrACTION
     menuGroup: distrACTION
     menuTitle: Binomial Distribution
     menuSubgroup: Discrete distributions
+    category: analyses
   - title: Poisson Distribution
     name: PoissonDistribution
     ns: distrACTION
     menuGroup: distrACTION
     menuSubgroup: Discrete distributions
     menuTitle: Poisson Distribution
+    category: analyses
   - title: Geometric Distribution
     name: GeometricDistribution
     ns: distrACTION
     menuGroup: distrACTION
     menuSubgroup: Discrete distributions
     menuTitle: Geometric Distribution
+    category: analyses
 usesNative: true
 minApp: 1.0.8
 
