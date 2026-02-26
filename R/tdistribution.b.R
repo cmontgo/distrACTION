@@ -156,13 +156,29 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunctionType=="central") {
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
+        # Mean and SD for t distribution (central and non-central)
+        if (DP1 > 1) {
+          StatMeanVal <- DP2 * sqrt(DP1/2) * exp(lgamma((DP1-1)/2) - lgamma(DP1/2))
+          StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+        } else {
+          StatMeanVal <- NA
+          StatMeanStr <- "undefined (df \u2264 1)"
+        }
+        if (DP1 > 2) {
+          StatVar <- DP1*(1+DP2^2)/(DP1-2) - ifelse(is.na(StatMeanVal), 0, StatMeanVal^2)
+          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+        } else {
+          StatSDStr <- "undefined (df \u2264 2)"
+        }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(
           DistributionResultColumn=OutputLabel11,
           QuantileResultColumn=OutputLabel12,
           QuantileLowerResultColumn=OutputLabel12,
-          QuantileUpperResultColumn=OutputLabel22))
+          QuantileUpperResultColumn=OutputLabel22,
+          MeanColumn=StatMeanStr,
+          SDColumn=StatSDStr))
         
         
         ###### 1.3) Plot preparation ######
@@ -298,27 +314,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         image$setState(Dataset)
         
         
-        ###### 1.4) Distribution Statistics ######
-        # Mean and SD for t distribution (central and non-central)
-        if (DP1 > 1) {
-          StatMeanVal <- DP2 * sqrt(DP1/2) * exp(lgamma((DP1-1)/2) - lgamma(DP1/2))
-          StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
-        } else {
-          StatMeanVal <- NA
-          StatMeanStr <- "undefined (df \u2264 1)"
-        }
-        if (DP1 > 2) {
-          StatVar <- DP1*(1+DP2^2)/(DP1-2) - ifelse(is.na(StatMeanVal), 0, StatMeanVal^2)
-          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
-        } else {
-          StatSDStr <- "undefined (df \u2264 2)"
-        }
-        Stats <- self$results$Stats
-        Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMeanStr))
-        Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSDStr))
-
-
-        ###### 1.5) Error Messages #####
+        ###### 1.4) Error Messages #####
         #Error if XValue\u2265XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")

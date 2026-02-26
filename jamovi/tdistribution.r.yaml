@@ -25,43 +25,39 @@ items:
       title: "Results"
       type: Table
       rows: 1
-      clearWith:  # <-- here
+      clearWith:
         - group
         - alt
         - varEq
       columns:
-         - name: DistributionResultColumn
-           title: Probability
-           type: number
-           format: zto
-           visible: (DistributionFunction)
-         - name: QuantileResultColumn
-           title: x1
-           type: number
-           visible: (QuantileFunction && QuantileFunctionType=="cumulative")
-           superTitle: Quantile
-         - name: QuantileLowerResultColumn
-           title: x1
-           type: number
-           visible: (QuantileFunction && QuantileFunctionType=="central")
-           superTitle: Quantiles
-         - name: QuantileUpperResultColumn
-           title: x2
-           type: number
-           visible: (QuantileFunction && QuantileFunctionType=="central")
-           superTitle: Quantiles
-          
-    - name: Stats
-      title: "Distribution Statistics"
-      type: Table
-      rows: 2
-      columns:
-        - name: StatisticColumn
-          title: ""
+        - name: DistributionResultColumn
+          title: Probability
+          type: number
+          format: zto
+          visible: (DistributionFunction)
+        - name: QuantileResultColumn
+          title: x1
+          type: number
+          visible: (QuantileFunction && QuantileFunctionType=="cumulative")
+          superTitle: Quantile
+        - name: QuantileLowerResultColumn
+          title: x1
+          type: number
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
+        - name: QuantileUpperResultColumn
+          title: x2
+          type: number
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
+        - name: MeanColumn
+          title: Mean
           type: text
-        - name: ValueColumn
-          title: Value
+          superTitle: Distribution Statistics
+        - name: SDColumn
+          title: SD
           type: text
+          superTitle: Distribution Statistics
 
     - name: plot
       title: ""

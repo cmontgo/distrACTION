@@ -109,13 +109,18 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         OutputLabel11 <- DistributionResult}
       if(QuantileFunction=="TRUE"){
         OutputLabel12 <- QuantileResult}
+      # Mean = lambda, SD = sqrt(lambda)
+      StatMeanStr <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
+      StatSDStr   <- format(round(sqrt(DP1), 4), nsmall=0, scientific=FALSE)
       # The Output-Matrix is written to the according Result-Frame
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
         QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22))
+        QuantileUpperResultColumn=OutputLabel22,
+        MeanColumn=StatMeanStr,
+        SDColumn=StatSDStr))
       
       
       ###### 1.3) Plot preparation ######
@@ -223,19 +228,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       
       
       
-      ###### 1.4) Distribution Statistics ######
-      # Mean and SD for Poisson distribution (DP1=lambda)
-      # Mean = lambda, SD = sqrt(lambda)
-      StatMeanVal <- DP1
-      StatSDVal   <- sqrt(DP1)
-      StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
-      StatSDStr   <- format(round(StatSDVal,   4), nsmall=0, scientific=FALSE)
-      Stats <- self$results$Stats
-      Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMeanStr))
-      Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSDStr))
-
-
-      ###### 1.5) Error Messages #####
+      ###### 1.4) Error Messages #####
       #Error if XValue\u2265XValue2
       if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
         Inputs$setError("x2 must be greater than x1. ")

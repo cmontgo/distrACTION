@@ -138,13 +138,18 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunctionType=="central") {
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
+        # Mean = (1-p)/p, SD = sqrt(1-p)/p
+        StatMeanStr <- format(round((1-DP1)/DP1, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(sqrt(1-DP1)/DP1, 4), nsmall=0, scientific=FALSE)
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(
           DistributionResultColumn=OutputLabel11,
           QuantileResultColumn=OutputLabel12,
           QuantileLowerResultColumn=OutputLabel12,
-          QuantileUpperResultColumn=OutputLabel22))
+          QuantileUpperResultColumn=OutputLabel22,
+          MeanColumn=StatMeanStr,
+          SDColumn=StatSDStr))
 
 
         ###### 1.3) Plot preparation ######
@@ -284,20 +289,7 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         image$setState(Dataset)
 
 
-        ###### 1.4) Distribution Statistics ######
-        # Mean and SD for Geometric distribution (DP1=p)
-        # R uses P(X=k) = p*(1-p)^k (number of failures before first success)
-        # Mean = (1-p)/p, SD = sqrt(1-p)/p
-        StatMeanVal <- (1-DP1)/DP1
-        StatSDVal   <- sqrt(1-DP1)/DP1
-        StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
-        StatSDStr   <- format(round(StatSDVal,   4), nsmall=0, scientific=FALSE)
-        Stats <- self$results$Stats
-        Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMeanStr))
-        Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSDStr))
-
-
-        ###### 1.5) Error Messages #####
+        ###### 1.4) Error Messages #####
         # Error if XValue >= XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")

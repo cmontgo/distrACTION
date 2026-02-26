@@ -103,7 +103,6 @@ FDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
     active = list(
         Inputs = function() private$.items[["Inputs"]],
         Outputs = function() private$.items[["Outputs"]],
-        Stats = function() private$.items[["Stats"]],
         plot = function() private$.items[["plot"]]),
     private = list(),
     public=list(
@@ -148,24 +147,20 @@ FDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `type`="number", 
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileResultColumn", 
-                        `title`="Quantile", 
-                        `type`="number", 
-                        `visible`="(QuantileFunction)"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="Stats",
-                title="Distribution Statistics",
-                rows=2,
-                columns=list(
+                        `name`="QuantileResultColumn",
+                        `title`="Quantile",
+                        `type`="number",
+                        `visible`="(QuantileFunction)"),
                     list(
-                        `name`="StatisticColumn",
-                        `title`="",
-                        `type`="text"),
+                        `name`="MeanColumn",
+                        `title`="Mean",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="ValueColumn",
-                        `title`="Value",
-                        `type`="text"))))
+                        `name`="SDColumn",
+                        `title`="SD",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

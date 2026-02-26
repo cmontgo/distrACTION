@@ -107,7 +107,6 @@ BinomialDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
     active = list(
         Inputs = function() private$.items[["Inputs"]],
         Outputs = function() private$.items[["Outputs"]],
-        Stats = function() private$.items[["Stats"]],
         plot = function() private$.items[["plot"]]),
     private = list(),
     public=list(
@@ -165,25 +164,21 @@ BinomialDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
                         `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="QuantileUpperResultColumn", 
-                        `title`="x2", 
-                        `type`="integer", 
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
-                        `superTitle`="Quantiles"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="Stats",
-                title="Distribution Statistics",
-                rows=2,
-                columns=list(
+                        `name`="QuantileUpperResultColumn",
+                        `title`="x2",
+                        `type`="integer",
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
+                        `superTitle`="Quantiles"),
                     list(
-                        `name`="StatisticColumn",
-                        `title`="",
-                        `type`="text"),
+                        `name`="MeanColumn",
+                        `title`="Mean",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="ValueColumn",
-                        `title`="Value",
-                        `type`="text"))))
+                        `name`="SDColumn",
+                        `title`="SD",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

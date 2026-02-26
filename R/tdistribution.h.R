@@ -106,7 +106,6 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
     active = list(
         Inputs = function() private$.items[["Inputs"]],
         Outputs = function() private$.items[["Outputs"]],
-        Stats = function() private$.items[["Stats"]],
         plot = function() private$.items[["plot"]]),
     private = list(),
     public=list(
@@ -122,18 +121,18 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 rows=2,
                 columns=list(
                     list(
-                        `name`="ParametersColumn", 
-                        `title`="Parameters", 
+                        `name`="ParametersColumn",
+                        `title`="Parameters",
                         `type`="text"),
                     list(
-                        `name`="DistributionFunctionColumn", 
-                        `title`="'Compute probability'", 
-                        `type`="text", 
+                        `name`="DistributionFunctionColumn",
+                        `title`="'Compute probability'",
+                        `type`="text",
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileFunctionColumn", 
-                        `title`="'Compute quantile(s)'", 
-                        `type`="text", 
+                        `name`="QuantileFunctionColumn",
+                        `title`="'Compute quantile(s)'",
+                        `type`="text",
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -146,43 +145,39 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "varEq"),
                 columns=list(
                     list(
-                        `name`="DistributionResultColumn", 
-                        `title`="Probability", 
-                        `type`="number", 
-                        `format`="zto", 
+                        `name`="DistributionResultColumn",
+                        `title`="Probability",
+                        `type`="number",
+                        `format`="zto",
                         `visible`="(DistributionFunction)"),
                     list(
-                        `name`="QuantileResultColumn", 
-                        `title`="x1", 
-                        `type`="number", 
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"cumulative\")", 
+                        `name`="QuantileResultColumn",
+                        `title`="x1",
+                        `type`="number",
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"cumulative\")",
                         `superTitle`="Quantile"),
                     list(
-                        `name`="QuantileLowerResultColumn", 
-                        `title`="x1", 
-                        `type`="number", 
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
+                        `name`="QuantileLowerResultColumn",
+                        `title`="x1",
+                        `type`="number",
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
                         `superTitle`="Quantiles"),
                     list(
-                        `name`="QuantileUpperResultColumn", 
-                        `title`="x2", 
-                        `type`="number", 
-                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
-                        `superTitle`="Quantiles"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="Stats",
-                title="Distribution Statistics",
-                rows=2,
-                columns=list(
+                        `name`="QuantileUpperResultColumn",
+                        `title`="x2",
+                        `type`="number",
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")",
+                        `superTitle`="Quantiles"),
                     list(
-                        `name`="StatisticColumn",
-                        `title`="",
-                        `type`="text"),
+                        `name`="MeanColumn",
+                        `title`="Mean",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"),
                     list(
-                        `name`="ValueColumn",
-                        `title`="Value",
-                        `type`="text"))))
+                        `name`="SDColumn",
+                        `title`="SD",
+                        `type`="text",
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

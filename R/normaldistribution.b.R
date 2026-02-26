@@ -135,12 +135,16 @@ NormaldistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           OutputLabel12 <- QuantileResult
           OutputLabel22 <- QuantileResult2}}
      # The Output-Matrix is written to the according Result-Frame
+      StatMean <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
+      StatSD   <- format(round(DP2, 4), nsmall=0, scientific=FALSE)
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
         QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22))
+        QuantileUpperResultColumn=OutputLabel22,
+        MeanColumn=StatMean,
+        SDColumn=StatSD))
     
 
       ###### 1.3) Plot preparation ######
@@ -277,16 +281,7 @@ NormaldistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       image$setState(Dataset)
       
       
-      ###### 1.4) Distribution Statistics ######
-      # Mean and SD for Normal distribution
-      StatMean <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
-      StatSD   <- format(round(DP2, 4), nsmall=0, scientific=FALSE)
-      Stats <- self$results$Stats
-      Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMean))
-      Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSD))
-
-
-      ###### 1.5) Error Messages #####
+      ###### 1.4) Error Messages #####
       #Error if XValue\u2265XValue2
       if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
         Inputs$setError("x2 must be greater than x1. ")
