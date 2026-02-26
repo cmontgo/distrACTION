@@ -52,6 +52,12 @@ analyses:
     menuGroup: distrACTION
     menuSubgroup: Discrete distributions
     menuTitle: Poisson Distribution
+  - title: Geometric Distribution
+    name: GeometricDistribution
+    ns: distrACTION
+    menuGroup: distrACTION
+    menuSubgroup: Discrete distributions
+    menuTitle: Geometric Distribution
 usesNative: true
 minApp: 1.0.8
 

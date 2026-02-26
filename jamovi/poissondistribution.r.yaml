@@ -41,6 +41,18 @@ items:
           visible: (QuantileFunction)
           superTitle: Quantile
           
+    - name: Stats
+      title: "Distribution Statistics"
+      type: Table
+      rows: 2
+      columns:
+        - name: StatisticColumn
+          title: ""
+          type: text
+        - name: ValueColumn
+          title: Value
+          type: text
+
     - name: plot
       title: ""
       type:  Image

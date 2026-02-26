@@ -1,73 +1,85 @@
-Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
-    "Chi2DistributionClass",
-    inherit = Chi2DistributionBase,
+GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
+    "GeometricDistributionClass",
+    inherit = GeometricDistributionBase,
     private = list(
-      
-      
-      
+
+
+
       ########### 1) Main-Function ##########
       .run = function() {
-        
-        
+
+
         ###### 1.1) Preparation ######
         ##### 1.1.1) Extraction of Input-Values #####
         # Is the distribution function selected?
-        DistributionFunction <- self$options$DistributionFunction ### == TRUE|FALSE      
+        DistributionFunction <- self$options$DistributionFunction ### == TRUE|FALSE
         # Is the quantile function selected?
-        QuantileFunction <- self$options$QuantileFunction ### == TRUE|FALSE       
+        QuantileFunction <- self$options$QuantileFunction ### == TRUE|FALSE
+        # Which type of the quantile function is selected?
+        QuantileFunctionType <- self$options$QuantileFunctionType ### == central|cumulative
         # Which type of the distribution function is selected?
-        DistributionFunctionType <- self$options$DistributionFunctionType ### == lower|higher|interval
+        DistributionFunctionType <- self$options$DistributionFunctionType ### == lower|higher|interval|is
         # The specification of the x value is extracted
         XValue <- self$options$x1
         # The specification of the p value is extracted
         Quantile <- self$options$p
         # The specification of the second value is extracted
         XValue2 <- self$options$x2
-        # The specification of the first distribution parameter (df1) is extracted
+        # The specification of the first distribution parameter (Probability) is extracted
         DP1 <- self$options$dp1
-        # The specification of the second distribution parameter (λ)
-        DP2 <- self$options$dp2
-        
-        
+        # The quantiles are recalculated if the central interval quantile is selected
+        if(QuantileFunction== "TRUE"){
+          if (QuantileFunctionType=="central") {
+            # The lower end of the central interval is calculated
+            LowerQuantile <- ((1-Quantile)/2)
+            # The higher end of the central interval is calculated
+            HigherQuantile <- LowerQuantile+Quantile}}
+
+
         ##### 1.1.2) Definition of variables #####
         # The lower end of the distribution
         LowerTail <- 0
-        # Upper End of the distribution
-        UpperTail <- DP1*6+DP2
-        # These settings are changed for small values of DP1
-        if(DP1>4){
-          UpperTail <- ceiling(qchisq(0.9999, DP1, DP2))}
-        if(DP1>20){
-          LowerTail <- ceiling(qchisq(0.0001, DP1, DP2))}
-        # The number of values in the curve
-        N <- 1000
+        # The upper end of the distribution
+        N <- ceiling(qgeom(0.99999, DP1))
+        # The upper end of the distribution
+        UpperTail <- N
         # Define a variable for the columname of dataframes
         Columnames <- c("X", "Prob")
-        
-        
-        ##### 1.1.3) Inputs table ######
+        # The quantiles are recalculated if the central interval quantile function is selected
+        if(QuantileFunction== "TRUE"){
+          if (QuantileFunctionType=="central") {
+            # The lower end of the central interval is calculated
+            LowerQuantile <- ((1-Quantile)/2)
+            # The higher end of the central interval is calculated
+            HigherQuantile <- LowerQuantile+Quantile}}
+
+
+        ##### 1.1.3) Label setting #####
         # Label for the distribution parameters
-        InputLabel1 <- "df = "
-        InputLabel2 <- "λ = "
+        InputLabel1 <- "Prob. = "
         DistributionFunctionTypeLabel <- ""
         QuantileFunctionTypeLabel <- ""
         # Label for the selected type of distribution function
+        if (DistributionFunctionType=="is"){
+          DistributionFunctionTypeLabel <- "Mode: P(X = x1)"}
         if (DistributionFunctionType=="lower"){
           DistributionFunctionTypeLabel <- "Mode: P(X \u2264 x1)"}
         if (DistributionFunctionType=="interval"){
           DistributionFunctionTypeLabel <- paste("Mode: x2 = ", XValue2, sep = "")}
         if (DistributionFunctionType=="higher"){
           DistributionFunctionTypeLabel <- "Mode: P(X \u2265 x1)"}
-        if (QuantileFunction=="TRUE") {
-          QuantileFunctionTypeLabel <- ""}      
+        if (QuantileFunctionType=="cumulative") {
+          QuantileFunctionTypeLabel <- "cumulative mode"}
+        if (QuantileFunctionType=="central") {
+          QuantileFunctionTypeLabel <- "central mode"}
 
-        
+
         ##### 1.1.4) Inputs table ######
         # The input matrix is created
         InputSummary <- matrix(ncol = 3, nrow = 2)
         # The values are transferred to the input matrix
         InputSummary[1,1] <- paste(InputLabel1, DP1, sep = "")
-        InputSummary[2,1] <- paste(InputLabel2, DP2, sep = "")
+        InputSummary[2,1] <- paste("")
         InputSummary[1,2] <- paste("x1 = ", XValue, sep = "")
         InputSummary[2,2] <- DistributionFunctionTypeLabel
         InputSummary[1,3] <- paste("p = ", Quantile, sep = "")
@@ -82,62 +94,75 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           ParametersColumn=InputSummary[2,1],
           DistributionFunctionColumn=InputSummary[2,2],
           QuantileFunctionColumn=InputSummary[2,3]))
-        
-        
+
+
         ###### 1.2) Quantile & Distribution calculation ######
         ##### 1.2.1) Calculations #####
         # The sequence with the values for the distribution is created
-        x <- seq(LowerTail, UpperTail, length=N)
+        x <- seq(LowerTail, N, length=N+1)
         # Calculation of the distribution density
-        Density <- dchisq(x, DP1, DP2)
+        Density <- dgeom(x, DP1)
         if(DistributionFunction=="TRUE"){
-          # Calculation of the quantile
-          DistributionResult1 <- pchisq(XValue, DP1, DP2)
-          # The quantile is saved as another variable
-          DistributionResult <- DistributionResult1
+          # Calculation of the probability P(X <= x1)
+          DistributionResult <- pgeom(XValue, DP1)
+          if(DistributionFunctionType=="higher"){
+            # P(X >= x1) = 1 - P(X < x1) = 1 - P(X <= x1) + P(X = x1)
+            DistributionResult <- 1 - pgeom(XValue, DP1) + dgeom(XValue, DP1)}
           if(DistributionFunctionType == "interval"){
-            # In case of two x-values, the second quantile is calculated too
-            DistributionResult2 <- pchisq(XValue2, DP1, DP2)
-            # The result is the difference between the two quantiles
-            DistributionResult <- DistributionResult2-DistributionResult1}}
+            # P(x1 <= X <= x2) = P(X <= x2) - P(X <= x1) + P(X = x1)
+            DistributionResult <- pgeom(XValue2, DP1) - pgeom(XValue, DP1) + dgeom(XValue, DP1)}}
         if(QuantileFunction=="TRUE"){
-          # The x-value of the percentil is calculated
-          QuantileResult <- qchisq(Quantile, DP1, DP2)}
-        
-        
+          if (QuantileFunctionType=="cumulative"){
+            # The x-value of the percentile is calculated
+            QuantileResult <- qgeom(Quantile, DP1)}
+          if (QuantileFunctionType=="central"){
+            # The x-value of the central interval is calculated
+            QuantileResult <- qgeom(LowerQuantile, DP1)
+            QuantileResult2 <- qgeom(HigherQuantile, DP1)}}
+
+
         ##### 1.2.2) Output Table #####
         # Outputlabels are created empty...
         OutputLabel11 <- ""
         OutputLabel12 <- ""
         OutputLabel21 <- ""
         OutputLabel22 <- ""
-        # ... and filled by conditions. 
+        # ... and filled by conditions.
         if(DistributionFunction=="TRUE"){
-          if(DistributionFunctionType=="higher"){
-            DistributionResult <- 1-DistributionResult}
+          if(DistributionFunctionType=="is"){
+            DistributionResult <- dgeom(XValue, DP1)}
           OutputLabel11 <- DistributionResult}
         if(QuantileFunction=="TRUE"){
+          if (QuantileFunctionType=="cumulative") {
             OutputLabel12 <- QuantileResult}
-           # The Output-Matrix is written to the according Result-Frame
+          if (QuantileFunctionType=="central") {
+            OutputLabel12 <- QuantileResult
+            OutputLabel22 <- QuantileResult2}}
+        # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(
           DistributionResultColumn=OutputLabel11,
-          QuantileResultColumn=OutputLabel12))    
-        
-        
+          QuantileResultColumn=OutputLabel12,
+          QuantileLowerResultColumn=OutputLabel12,
+          QuantileUpperResultColumn=OutputLabel22))
+
+
         ###### 1.3) Plot preparation ######
         ##### 1.3.1) Data packing #####
         # The results are combined in a Dataframe
         Datas <- data.frame(x, Density)
-        # Names of the colums
+        # Names of the columns
         colnames(Datas) <-  Columnames
-        # For calculating the searched area, a new variable is created  
+        # For calculating the searched area, a new variable is created
         MainCurveData <- as.data.frame(Datas)
-        
-        
+
+
         ##### 1.3.2) Remove values #####
         # Values which are not part of the searched area are removed
         if (DistributionFunction=="TRUE") {
+          if (DistributionFunctionType=="is") {
+            MainCurveData$Prob[MainCurveData$X != XValue] <- NA
+            MainCurveData$X[MainCurveData$X != XValue] <- NA}
           if (DistributionFunctionType=="lower") {
             MainCurveData$Prob[MainCurveData$X > XValue] <- NA
             MainCurveData$X[MainCurveData$X > XValue] <- NA}
@@ -146,28 +171,26 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             MainCurveData$X[MainCurveData$X < XValue] <- NA}
           if (DistributionFunctionType=="interval") {
             MainCurveData$Prob[MainCurveData$X < XValue] <- NA
-            MainCurveData$X[MainCurveData$X < XValue] <- NA        
+            MainCurveData$X[MainCurveData$X < XValue] <- NA
             MainCurveData$Prob[MainCurveData$X > XValue2] <- NA
             MainCurveData$X[MainCurveData$X > XValue2] <- NA}}
-        
-        
+
+
         ##### 1.3.3) Calculations for the plot #####
-        # The transcparency of the lower quantile segment is defined
+        # The transparency of the lower quantile segment is defined
         QuantileAlphaLow <- 1
-        # The transcparency of the upper quantile segment is defined
+        # The transparency of the upper quantile segment is defined
         QuantileAlphaHigh <- 1
         # The text for the quantiles legend is defined
         QuantileLabel <- "Quantile"
         # The size of the legends text is defined
         Textsize <- 16
         # The lowest segment of the x-axis is defined
-        LowerAxisSegment <- LowerTail
+        LowerAxisSegment <- 0
         # The highest segment of the x-axis is defined
-        HigherAxisSegment <- UpperTail
+        HigherAxisSegment <- N
         # The segments of the x-axis are defined
         AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, by = 1)
-        if(DP1>4){
-          AxisSegments <- floor(seq(LowerAxisSegment, HigherAxisSegment, length.out =  10))}
         # A variable for the position of the upper quantile is defined
         HigherSegment <- NA
         # A variable for the position of the lower quantile is defined
@@ -178,40 +201,69 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         LowerSegmentLength <- NA
         # The position of the upper quantile is calculated
         if(QuantileFunction=="TRUE"){
-          HigherSegment <- QuantileResult
-          HigherSegmentLength <- dchisq(HigherSegment, DP1, DP2)
-          # The length of the quantile segment is changed if it is too short
-          if(max(Datas$Prob)!="Inf"){
+          if(QuantileFunctionType=="cumulative"){
+            HigherSegment <- QuantileResult
+            HigherSegmentLength <- dgeom(HigherSegment, DP1)
+            # The length of the quantile segment is changed if it is too short
             if((HigherSegmentLength*18)<(max(Datas$Prob))){
+              HigherSegmentLength <- ((max(Datas$Prob))/18)}
+            # the position of the lower quantile is the same.
+            LowerSegment <- HigherSegment
+            LowerSegmentLength <- HigherSegmentLength}
+          if(QuantileFunctionType=="central"){
+            LowerSegment <- qgeom(LowerQuantile, DP1)
+            LowerSegmentLength <- dgeom(LowerSegment, DP1)
+            HigherSegment <- qgeom(HigherQuantile, DP1)
+            HigherSegmentLength <- dgeom(HigherSegment, DP1)
+            # Also this quantile segment is shortened if it is too short
+            if((LowerSegmentLength*18)<(max(Datas$Prob))){
+              LowerSegmentLength <- ((max(Datas$Prob))/18)
               HigherSegmentLength <- ((max(Datas$Prob))/18)}}
-          if(max(Datas$Prob)=="Inf"){
-            if((HigherSegmentLength*18)<(max(Datas$Prob))){
-              HigherSegmentLength <- ((max(Datas$Prob[Datas$Prob!=max(Datas$Prob)]))/18)}}
-          # the position of the lower quantile is the same.
-          LoweSegment <- HigherSegment
-          LowerSegmentLength <- HigherSegmentLength
-        
-          
-          ##### 1.3.4) Improvements of the plot by conditions #####
-          # A value to check if the quantiles are within the x-axis is calculated      
-          HighLineCheck <- qchisq(Quantile, DP1, DP2)
-          # Changes are done if the quantile is outside the x-axis
-          if(HighLineCheck>HigherAxisSegment){
-            QuantileLabel <- "Quantile out of range"
-            QuantileAlphaLow <- 0
-            QuantileAlphaHigh <- 0
-            Textsize <- 10
-            HigherSegment <- HigherAxisSegment
-            LowerSegment <- HigherAxisSegment}
-          if(HighLineCheck<LowerAxisSegment){
-            QuantileLabel <- "Quantile out of range"
-            QuantileAlphaLow <- 0
-            QuantileAlphaHigh <- 0
-            Textsize <- 10
-            HigherSegment <- HigherAxisSegment
-            LowerSegment <- HigherAxisSegment}}
 
-        
+
+          ##### 1.3.4) Improvements of the plot by conditions #####
+          # A value to check if the quantiles are within the x-axis is calculated
+          if(QuantileFunctionType=="cumulative"){
+            HighLineCheck <- qgeom(Quantile, DP1)}
+          if(QuantileFunctionType=="central"){
+            HighLineCheck <- qgeom(HigherQuantile, DP1)
+            LowLineCheck <- qgeom(LowerQuantile, DP1)}
+          # Changes are done if the quantile is outside the x-axis
+          if(QuantileFunctionType=="cumulative"){
+            if(HighLineCheck>HigherAxisSegment){
+              QuantileLabel <- "Quantile out of range"
+              QuantileAlphaLow <- 0
+              QuantileAlphaHigh <- 0
+              Textsize <- 10
+              HigherSegment <- HigherAxisSegment
+              LowerSegment <- HigherAxisSegment}
+            if(HighLineCheck<LowerAxisSegment){
+              QuantileLabel <- "Quantile out of range"
+              QuantileAlphaLow <- 0
+              QuantileAlphaHigh <- 0
+              Textsize <- 10
+              HigherSegment <- HigherAxisSegment
+              LowerSegment <- HigherAxisSegment}}
+          if(QuantileFunctionType=="central"){
+            if(HighLineCheck>HigherAxisSegment){
+              QuantileLabel <- "(Upper) Quantile out of range"
+              QuantileAlphaHigh <- 0
+              Textsize <- 10
+              HigherSegment <- HigherAxisSegment}
+            if(LowLineCheck<LowerAxisSegment){
+              QuantileLabel <- "(Lower) Quantile out of range"
+              QuantileAlphaLow <- 0
+              Textsize <- 10
+              LowerSegment <- LowerAxisSegment}
+            if((LowLineCheck<LowerAxisSegment)&(HighLineCheck>HigherAxisSegment)){
+              QuantileLabel <- "Quantile out of range"
+              QuantileAlphaHigh <- 0
+              QuantileAlphaLow <- 0
+              Textsize <- 10
+              HigherSegment <- HigherAxisSegment
+              LowerSegment <- LowerAxisSegment}}}
+
+
         ##### 1.3.5) Submit datas for plot #####
         # The variables that are needed for the plot function are combined to a new variable
         Dataset <- cbind(Datas, MainCurveData[,2], MainCurveData[,])
@@ -226,17 +278,18 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         Dataset[6,4] <- QuantileAlphaHigh
         Dataset[7,4] <- QuantileLabel
         Dataset[8,4] <- Textsize
-        Dataset[1:(length(AxisSegments)),5] <- AxisSegments        
+        Dataset[1:(length(AxisSegments)),5] <- AxisSegments
         # The new variable is transferred to the plot-object
         image <- self$results$plot
         image$setState(Dataset)
-        
-        
+
+
         ###### 1.4) Distribution Statistics ######
-        # Mean and SD for chi-square distribution (central and non-central)
-        # Mean = df + lambda, SD = sqrt(2*(df + 2*lambda))
-        StatMeanVal <- DP1 + DP2
-        StatSDVal   <- sqrt(2*(DP1 + 2*DP2))
+        # Mean and SD for Geometric distribution (DP1=p)
+        # R uses P(X=k) = p*(1-p)^k (number of failures before first success)
+        # Mean = (1-p)/p, SD = sqrt(1-p)/p
+        StatMeanVal <- (1-DP1)/DP1
+        StatSDVal   <- sqrt(1-DP1)/DP1
         StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
         StatSDStr   <- format(round(StatSDVal,   4), nsmall=0, scientific=FALSE)
         Stats <- self$results$Stats
@@ -245,17 +298,17 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
 
         ###### 1.5) Error Messages #####
-        #Error if XValue\u2265XValue2
+        # Error if XValue >= XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")
           Outputs$setVisible(visible=FALSE)}},
-      
-      
-      
+
+
+
       ########### 2.) Plot-Function ##########
       .plot=function(image, ...) {
-        
-        
+
+
         ###### 2.1) Extraction of values ######
         ##### 2.1.1) Extraction of the plot datas #####
         # The main dataset for the plot is extracted
@@ -271,26 +324,26 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         HigherSegmentLength <- as.numeric(Dataset[3,4])
         # The length of the lower quantile segment
         LowerSegmentLength <- as.numeric(Dataset[4,4])
-        # The transparency of the lower quntile segment
+        # The transparency of the lower quantile segment
         QuantileAlphaLow <- as.numeric(Dataset[5,4])
-        # The transparency of the lower higher segment
+        # The transparency of the upper quantile segment
         QuantileAlphaHigh <- as.numeric(Dataset[6,4])
-        # The text for the quantiles legend 
+        # The text for the quantiles legend
         QuantileLabel <- Dataset[7,4]
         # The textsize of the legend
         Textsize <- Dataset[8,4]
         # The x-axis labels
         AxisSegments <- as.numeric(Dataset[,5])
         AxisSegments <- na.omit(AxisSegments)
-        
-        
+
+
         ##### 2.1.2) Extraction of inputvalues #####
         # Is the distribution function selected?
         DistributionFunction <- self$options$DistributionFunction ### == TRUE|FALSE
         # Is the quantile function selected?
         QuantileFunction <- self$options$QuantileFunction ### == TRUE|FALSE
-        
-        
+
+
         ###### 2.2) Definition of parameters for the plot ######
         # Size of the points
         Pointsize <- 0.000001
@@ -301,27 +354,29 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # Color to fill points
         Color <- c("#e0bc6b", "#7b9ee6", "#9f9f9f")
 
-        
+
         ###### 2.3) Creation of the plot ######
         ##### 2.3.1) Settings of the plot #####
         Plot <- ggplot(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob))+
+          # The whole distribution is plotted as background
+          geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob), fill="grey")+
           # X-axis-label
           ggplot2::xlab("")+
           # Y-axis-label
           ggplot2::ylab("")+
           # Add x-axis scale
           scale_x_continuous(breaks = AxisSegments)
-        
-        
-        ##### 2.3.2) Area ##### 
+
+
+        ##### 2.3.2) Area #####
         if (DistributionFunction=="TRUE") {
           Plot <- Plot+
             # The area of the searched interval is marked
-            geom_area(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
+            geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
             # Set the colors of the legend
             scale_fill_manual(values = Color)}
-        
-        
+
+
         ##### 2.3.3) Quantile #####
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
@@ -330,22 +385,18 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaHigh)+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
-        
-        
+
+
         ##### 2.3.4) Final adjustments of the plot #####
         Plot <- Plot+
-          # The whole curve is plottet
-          geom_point(size =Pointsize, color=Color[1])+
-          # Connect the points by a line
-          geom_line()+
           # Theme of the Plot
           theme_classic()+
           # Set fontsize of the legend
           theme(legend.text = element_text(size = Textsize))+
           # Remove legend title
           theme(legend.title=element_blank())
-        
-        
+
+
         ###### 2.4) Print the plot ######
         # Print the plot
         print(Plot)

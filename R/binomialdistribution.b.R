@@ -289,7 +289,19 @@ BinomialDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         
         
         
-        ###### 1.4) Error Messages #####
+        ###### 1.4) Distribution Statistics ######
+        # Mean and SD for Binomial distribution (DP1=n, DP2=p)
+        # Mean = n*p, SD = sqrt(n*p*(1-p))
+        StatMeanVal <- DP1 * DP2
+        StatSDVal   <- sqrt(DP1 * DP2 * (1 - DP2))
+        StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(StatSDVal,   4), nsmall=0, scientific=FALSE)
+        Stats <- self$results$Stats
+        Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMeanStr))
+        Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSDStr))
+
+
+        ###### 1.5) Error Messages #####
         #Error if XValue\u2265XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")

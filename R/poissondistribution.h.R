@@ -88,6 +88,7 @@ PoissonDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6:
     active = list(
         Inputs = function() private$.items[["Inputs"]],
         Outputs = function() private$.items[["Outputs"]],
+        Stats = function() private$.items[["Stats"]],
         plot = function() private$.items[["plot"]]),
     private = list(),
     public=list(
@@ -138,6 +139,20 @@ PoissonDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6:
                         `type`="integer", 
                         `visible`="(QuantileFunction)", 
                         `superTitle`="Quantile"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="Stats",
+                title="Distribution Statistics",
+                rows=2,
+                columns=list(
+                    list(
+                        `name`="StatisticColumn",
+                        `title`="",
+                        `type`="text"),
+                    list(
+                        `name`="ValueColumn",
+                        `title`="Value",
+                        `type`="text"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

@@ -1,13 +1,13 @@
 ---
-name:  FDistribution
-title: F-Distribution
+name:  GeometricDistribution
+title: Geometric Distribution
 jrs:   '1.1'
 
 items:
     - name: Inputs
       title: Input values
       type: Table
-      rows: 3
+      rows: 2
       columns:
         - name: ParametersColumn
           title: Parameters
@@ -17,7 +17,7 @@ items:
           type: text
           visible: (DistributionFunction)
         - name: QuantileFunctionColumn
-          title: "'Compute quantile'"
+          title: "'Compute quantile(s)'"
           type: text
           visible: (QuantileFunction)
 
@@ -25,7 +25,7 @@ items:
       title: "Results"
       type: Table
       rows: 1
-      clearWith:  # <-- here
+      clearWith:
         - group
         - alt
         - varEq
@@ -33,12 +33,24 @@ items:
         - name: DistributionResultColumn
           title: Probability
           type: number
+          format: zto
           visible: (DistributionFunction)
         - name: QuantileResultColumn
-          title: Quantile
-          type: number
-          visible: (QuantileFunction)
-          
+          title: x1
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="cumulative")
+          superTitle: Quantile
+        - name: QuantileLowerResultColumn
+          title: x1
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
+        - name: QuantileUpperResultColumn
+          title: x2
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
+
     - name: Stats
       title: "Distribution Statistics"
       type: Table

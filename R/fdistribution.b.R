@@ -246,7 +246,29 @@ FDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         image$setState(Dataset)
         
         
-        ###### 1.4) Error Messages #####
+        ###### 1.4) Distribution Statistics ######
+        # Mean and SD for F distribution (DP1=df1, DP2=df2, DP3=ncp)
+        # Non-central F: Mean = df2*(df1+ncp)/(df1*(df2-2)) for df2 > 2
+        # Var = 2*df2^2*[(df1+ncp)^2+(df1+2*ncp)*(df2-2)] / [df1^2*(df2-2)^2*(df2-4)] for df2 > 4
+        if (DP2 > 2) {
+          StatMeanVal <- DP2*(DP1+DP3)/(DP1*(DP2-2))
+          StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+        } else {
+          StatMeanVal <- NA
+          StatMeanStr <- "undefined (df2 \u2264 2)"
+        }
+        if (DP2 > 4) {
+          StatVar <- 2*DP2^2*((DP1+DP3)^2+(DP1+2*DP3)*(DP2-2)) / (DP1^2*(DP2-2)^2*(DP2-4))
+          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+        } else {
+          StatSDStr <- "undefined (df2 \u2264 4)"
+        }
+        Stats <- self$results$Stats
+        Stats$setRow(rowNo=1, values=list(StatisticColumn="Mean", ValueColumn=StatMeanStr))
+        Stats$setRow(rowNo=2, values=list(StatisticColumn="SD",   ValueColumn=StatSDStr))
+
+
+        ###### 1.5) Error Messages #####
         #Error if XValue\u2265XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")
