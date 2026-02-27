@@ -65,6 +65,13 @@ analyses:
     menuSubgroup: Discrete distributions
     menuTitle: Geometric Distribution
     category: analyses
+  - title: Hypergeometric Distribution
+    name: HypergeometricDistribution
+    ns: distrACTION
+    menuGroup: distrACTION
+    menuSubgroup: Discrete distributions
+    menuTitle: Hypergeometric Distribution
+    category: analyses
 usesNative: true
 minApp: 1.0.8
 
