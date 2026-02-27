@@ -62,17 +62,17 @@ options:
       default: 1
 
     - name: dp1
-      title: Successes in Population (m) =
+      title: Population Size (N) =
       type: Number
-      default: 10
+      default: 20
 
     - name: dp2
-      title: Failures in Population (n) =
+      title: Successes in Population (K) =
       type: Number
       default: 10
 
     - name: dp3
-      title: Number of Draws (k) =
+      title: Sample Size (n) =
       type: Number
       default: 5
 ...

@@ -25,11 +25,11 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         Quantile <- self$options$p
         # The specification of the second value is extracted
         XValue2 <- self$options$x2
-        # Number of successes in population (m)
+        # Population size (N)
         DP1 <- self$options$dp1
-        # Number of failures in population (n)
+        # Successes in population (K)
         DP2 <- self$options$dp2
-        # Number of draws (k)
+        # Sample size (n)
         DP3 <- self$options$dp3
         # The quantiles are recalculated if the central interval quantile is selected
         if(QuantileFunction== "TRUE"){
@@ -41,10 +41,10 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
 
         ##### 1.1.2) Definition of variables #####
-        # The lower end of the distribution: max(0, k-n)
-        LowerTail <- max(0, DP3 - DP2)
-        # The upper end of the distribution: min(k, m)
-        UpperTail <- min(DP3, DP1)
+        # The lower end of the distribution: max(0, n-(N-K))
+        LowerTail <- max(0, DP3 - (DP1 - DP2))
+        # The upper end of the distribution: min(n, K)
+        UpperTail <- min(DP3, DP2)
         # Number of values in the sequence
         N <- UpperTail - LowerTail
         # Define a variable for the column names of dataframes
@@ -58,8 +58,8 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
         ##### 1.1.3) Label setting #####
         # Label for the distribution parameters
-        InputLabel1 <- "m = "
-        InputLabel2 <- paste("n = ", DP2, ", k = ", DP3, sep="")
+        InputLabel1 <- "N = "
+        InputLabel2 <- paste("K = ", DP2, ", n = ", DP3, sep="")
         DistributionFunctionTypeLabel <- ""
         QuantileFunctionTypeLabel <- ""
         # Label for the selected type of distribution function
@@ -103,25 +103,25 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ##### 1.2.1) Calculations #####
         # The sequence with the values for the distribution is created
         x <- seq(LowerTail, UpperTail, by = 1)
-        # Calculation of the distribution density: dhyper(x, m, n, k)
-        Density <- dhyper(x, DP1, DP2, DP3)
+        # Calculation of the distribution density: dhyper(x, K, N-K, n)
+        Density <- dhyper(x, DP2, DP1-DP2, DP3)
         if(DistributionFunction=="TRUE"){
-          # Calculation of the probability P(X <= x1): phyper(x1, m, n, k)
-          DistributionResult <- phyper(XValue, DP1, DP2, DP3)
+          # Calculation of the probability P(X <= x1): phyper(x1, K, N-K, n)
+          DistributionResult <- phyper(XValue, DP2, DP1-DP2, DP3)
           if(DistributionFunctionType=="higher"){
             # P(X >= x1) = 1 - P(X < x1) = 1 - P(X <= x1) + P(X = x1)
-            DistributionResult <- 1 - phyper(XValue, DP1, DP2, DP3) + dhyper(XValue, DP1, DP2, DP3)}
+            DistributionResult <- 1 - phyper(XValue, DP2, DP1-DP2, DP3) + dhyper(XValue, DP2, DP1-DP2, DP3)}
           if(DistributionFunctionType == "interval"){
             # P(x1 <= X <= x2) = P(X <= x2) - P(X <= x1) + P(X = x1)
-            DistributionResult <- phyper(XValue2, DP1, DP2, DP3) - phyper(XValue, DP1, DP2, DP3) + dhyper(XValue, DP1, DP2, DP3)}}
+            DistributionResult <- phyper(XValue2, DP2, DP1-DP2, DP3) - phyper(XValue, DP2, DP1-DP2, DP3) + dhyper(XValue, DP2, DP1-DP2, DP3)}}
         if(QuantileFunction=="TRUE"){
           if (QuantileFunctionType=="cumulative"){
             # The x-value of the percentile is calculated
-            QuantileResult <- qhyper(Quantile, DP1, DP2, DP3)}
+            QuantileResult <- qhyper(Quantile, DP2, DP1-DP2, DP3)}
           if (QuantileFunctionType=="central"){
             # The x-value of the central interval is calculated
-            QuantileResult <- qhyper(LowerQuantile, DP1, DP2, DP3)
-            QuantileResult2 <- qhyper(HigherQuantile, DP1, DP2, DP3)}}
+            QuantileResult <- qhyper(LowerQuantile, DP2, DP1-DP2, DP3)
+            QuantileResult2 <- qhyper(HigherQuantile, DP2, DP1-DP2, DP3)}}
 
 
         ##### 1.2.2) Output Table #####
@@ -133,7 +133,7 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # ... and filled by conditions.
         if(DistributionFunction=="TRUE"){
           if(DistributionFunctionType=="is"){
-            DistributionResult <- dhyper(XValue, DP1, DP2, DP3)}
+            DistributionResult <- dhyper(XValue, DP2, DP1-DP2, DP3)}
           OutputLabel11 <- DistributionResult}
         if(QuantileFunction=="TRUE"){
           if (QuantileFunctionType=="cumulative") {
@@ -141,13 +141,13 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunctionType=="central") {
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
-        # Mean = k*m/(m+n), Variance = k*m*n*(m+n-k)/((m+n)^2*(m+n-1))
-        StatMeanStr <- format(round(DP3 * DP1 / (DP1 + DP2), 4), nsmall=0, scientific=FALSE)
-        if ((DP1 + DP2) > 1) {
-          StatVar <- DP3 * DP1 * DP2 * (DP1 + DP2 - DP3) / ((DP1 + DP2)^2 * (DP1 + DP2 - 1))
+        # Mean = n*K/N, Variance = n*K*(N-K)*(N-n)/(N^2*(N-1))
+        StatMeanStr <- format(round(DP3 * DP2 / DP1, 4), nsmall=0, scientific=FALSE)
+        if (DP1 > 1) {
+          StatVar <- DP3 * DP2 * (DP1 - DP2) * (DP1 - DP3) / (DP1^2 * (DP1 - 1))
           StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
         } else {
-          StatSDStr <- "undefined (m+n ≤ 1)"
+          StatSDStr <- "undefined (N ≤ 1)"
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
@@ -216,7 +216,7 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if(QuantileFunction=="TRUE"){
           if(QuantileFunctionType=="cumulative"){
             HigherSegment <- QuantileResult
-            HigherSegmentLength <- dhyper(HigherSegment, DP1, DP2, DP3)
+            HigherSegmentLength <- dhyper(HigherSegment, DP2, DP1-DP2, DP3)
             # The length of the quantile segment is changed if it is too short
             if((HigherSegmentLength*18)<(max(Datas$Prob))){
               HigherSegmentLength <- ((max(Datas$Prob))/18)}
@@ -224,10 +224,10 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             LowerSegment <- HigherSegment
             LowerSegmentLength <- HigherSegmentLength}
           if(QuantileFunctionType=="central"){
-            LowerSegment <- qhyper(LowerQuantile, DP1, DP2, DP3)
-            LowerSegmentLength <- dhyper(LowerSegment, DP1, DP2, DP3)
-            HigherSegment <- qhyper(HigherQuantile, DP1, DP2, DP3)
-            HigherSegmentLength <- dhyper(HigherSegment, DP1, DP2, DP3)
+            LowerSegment <- qhyper(LowerQuantile, DP2, DP1-DP2, DP3)
+            LowerSegmentLength <- dhyper(LowerSegment, DP2, DP1-DP2, DP3)
+            HigherSegment <- qhyper(HigherQuantile, DP2, DP1-DP2, DP3)
+            HigherSegmentLength <- dhyper(HigherSegment, DP2, DP1-DP2, DP3)
             # Also this quantile segment is shortened if it is too short
             if((LowerSegmentLength*18)<(max(Datas$Prob))){
               LowerSegmentLength <- ((max(Datas$Prob))/18)
@@ -237,10 +237,10 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           ##### 1.3.4) Improvements of the plot by conditions #####
           # A value to check if the quantiles are within the x-axis is calculated
           if(QuantileFunctionType=="cumulative"){
-            HighLineCheck <- qhyper(Quantile, DP1, DP2, DP3)}
+            HighLineCheck <- qhyper(Quantile, DP2, DP1-DP2, DP3)}
           if(QuantileFunctionType=="central"){
-            HighLineCheck <- qhyper(HigherQuantile, DP1, DP2, DP3)
-            LowLineCheck <- qhyper(LowerQuantile, DP1, DP2, DP3)}
+            HighLineCheck <- qhyper(HigherQuantile, DP2, DP1-DP2, DP3)
+            LowLineCheck <- qhyper(LowerQuantile, DP2, DP1-DP2, DP3)}
           # Changes are done if the quantile is outside the x-axis
           if(QuantileFunctionType=="cumulative"){
             if(HighLineCheck>HigherAxisSegment){

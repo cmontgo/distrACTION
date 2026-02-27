@@ -13,7 +13,7 @@ HypergeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRU
             x1 = 0,
             p = 0.5,
             x2 = 1,
-            dp1 = 10,
+            dp1 = 20,
             dp2 = 10,
             dp3 = 5, ...) {
 
@@ -64,7 +64,7 @@ HypergeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRU
             private$..dp1 <- jmvcore::OptionNumber$new(
                 "dp1",
                 dp1,
-                default=10)
+                default=20)
             private$..dp2 <- jmvcore::OptionNumber$new(
                 "dp2",
                 dp2,
@@ -251,7 +251,7 @@ HypergeometricDistribution <- function(
     x1 = 0,
     p = 0.5,
     x2 = 1,
-    dp1 = 10,
+    dp1 = 20,
     dp2 = 10,
     dp3 = 5) {
 
