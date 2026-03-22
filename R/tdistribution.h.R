@@ -167,7 +167,17 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `title`="x2", 
                         `type`="number", 
                         `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
-                        `superTitle`="Quantiles"))))
+                        `superTitle`="Quantiles"),
+                    list(
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"),
+                    list(
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

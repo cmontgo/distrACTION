@@ -47,7 +47,15 @@ items:
            type: number
            visible: (QuantileFunction && QuantileFunctionType=="central")
            superTitle: Quantiles
-          
+         - name: MeanColumn
+           title: Mean
+           type: text
+           superTitle: Distribution Statistics
+         - name: SDColumn
+           title: SD
+           type: text
+           superTitle: Distribution Statistics
+
     - name: plot
       title: ""
       type:  Image

@@ -21,16 +21,10 @@ items:
           type: text
           visible: (QuantileFunction)
 
-          
-
     - name: Outputs
       title: "Results"
       type: Table
       rows: 1
-      clearWith:  # <-- here
-        - group
-        - alt
-        - varEq
       columns:
         - name: DistributionResultColumn
           title: Probability
@@ -42,7 +36,15 @@ items:
           type: integer
           visible: (QuantileFunction)
           superTitle: Quantile
-          
+        - name: MeanColumn
+          title: Mean
+          type: text
+          superTitle: Distribution Statistics
+        - name: SDColumn
+          title: SD
+          type: text
+          superTitle: Distribution Statistics
+
     - name: plot
       title: ""
       type:  Image

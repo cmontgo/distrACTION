@@ -143,12 +143,17 @@ NegativeBinomialDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Clas
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
         # The Output-Matrix is written to the according Result-Frame
+        # Mean = r*(1-p)/p, SD = sqrt(r*(1-p))/p
+        StatMeanStr <- format(round(DP1 * (1 - DP2) / DP2, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(sqrt(DP1 * (1 - DP2)) / DP2, 4), nsmall=0, scientific=FALSE)
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(
           DistributionResultColumn=OutputLabel11,
           QuantileResultColumn=OutputLabel12,
           QuantileLowerResultColumn=OutputLabel12,
-          QuantileUpperResultColumn=OutputLabel22))
+          QuantileUpperResultColumn=OutputLabel22,
+          MeanColumn=StatMeanStr,
+          SDColumn=StatSDStr))
         
         
         ###### 1.3) Plot preparation ######
