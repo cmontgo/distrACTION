@@ -135,12 +135,12 @@ HypergeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRU
                         `type`="text"),
                     list(
                         `name`="DistributionFunctionColumn", 
-                        `title`="'Compute probability'", 
+                        `title`="Compute probability", 
                         `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
                         `name`="QuantileFunctionColumn", 
-                        `title`="'Compute quantile(s)'", 
+                        `title`="Compute quantile(s)", 
                         `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
@@ -148,10 +148,6 @@ HypergeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRU
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

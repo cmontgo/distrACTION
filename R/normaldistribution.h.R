@@ -137,6 +137,7 @@ NormaldistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 options=options,
                 name="Outputs",
                 title="Results",
+                visible="(DistributionFunction || QuantileFunction)",
                 rows=1,
                 clearWith=list(
                     "group",
