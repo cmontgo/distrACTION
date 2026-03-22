@@ -107,13 +107,18 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         OutputLabel11 <- DistributionResult}
       if(QuantileFunction=="TRUE"){
         OutputLabel12 <- QuantileResult}
+      # Mean = lambda, SD = sqrt(lambda)
+      StatMeanStr <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
+      StatSDStr   <- format(round(sqrt(DP1), 4), nsmall=0, scientific=FALSE)
       # The Output-Matrix is written to the according Result-Frame
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
         QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22))
+        QuantileUpperResultColumn=OutputLabel22,
+        MeanColumn=StatMeanStr,
+        SDColumn=StatSDStr))
       
       
       ###### 1.3) Plot preparation ######

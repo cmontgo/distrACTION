@@ -118,11 +118,18 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           OutputLabel11 <- DistributionResult}
         if(QuantileFunction=="TRUE"){
             OutputLabel12 <- QuantileResult}
-           # The Output-Matrix is written to the according Result-Frame
+        # Mean = df + lambda, SD = sqrt(2*(df + 2*lambda))
+        StatMeanVal <- DP1 + DP2
+        StatSDVal   <- sqrt(2*(DP1 + 2*DP2))
+        StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(StatSDVal,   4), nsmall=0, scientific=FALSE)
+        # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(
           DistributionResultColumn=OutputLabel11,
-          QuantileResultColumn=OutputLabel12))    
+          QuantileResultColumn=OutputLabel12,
+          MeanColumn=StatMeanStr,
+          SDColumn=StatSDStr))
         
         
         ###### 1.3) Plot preparation ######

@@ -123,13 +123,23 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         OutputLabel11 <- DistributionResult}
       if(QuantileFunction=="TRUE"){
         OutputLabel12 <- QuantileResult}
+      # Mean = 1/p if X is trials to success, (1-p)/p if X is failures
+      if (XisSuccess=="TRUE") {
+        StatMeanStr <- format(round(1 / DP1, 4), nsmall=0, scientific=FALSE)
+      } else {
+        StatMeanStr <- format(round((1 - DP1) / DP1, 4), nsmall=0, scientific=FALSE)
+      }
+      # SD = sqrt(1-p)/p regardless of parameterization
+      StatSDStr <- format(round(sqrt(1 - DP1) / DP1, 4), nsmall=0, scientific=FALSE)
       # The Output-Matrix is written to the according Result-Frame
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
         QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22))
+        QuantileUpperResultColumn=OutputLabel22,
+        MeanColumn=StatMeanStr,
+        SDColumn=StatSDStr))
       
       
       ###### 1.3) Plot preparation ######
