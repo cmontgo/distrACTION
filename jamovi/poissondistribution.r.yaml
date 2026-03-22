@@ -24,6 +24,7 @@ items:
     - name: Outputs
       title: "Results"
       type: Table
+      visible: (DistributionFunction || QuantileFunction)
       rows: 1
       clearWith:  # <-- here
         - group

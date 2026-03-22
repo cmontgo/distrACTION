@@ -1,6 +1,6 @@
 ---
-name:  Chi2Distribution
-title: χ2-Distribution
+name:  GeometricDistribution
+title: Geometric Distribution
 jrs:   '1.1'
 
 items:
@@ -17,15 +17,20 @@ items:
           type: text
           visible: (DistributionFunction)
         - name: QuantileFunctionColumn
-          title: "Compute quantile"
+          title: "Compute quantile(s)"
           type: text
           visible: (QuantileFunction)
+
+          
 
     - name: Outputs
       title: "Results"
       type: Table
-      visible: (DistributionFunction || QuantileFunction)
       rows: 1
+      clearWith:  # <-- here
+        - group
+        - alt
+        - varEq
       columns:
         - name: DistributionResultColumn
           title: Probability
@@ -33,9 +38,10 @@ items:
           format: zto
           visible: (DistributionFunction)
         - name: QuantileResultColumn
-          title: Quantile
-          type: number
+          title: x1
+          type: integer
           visible: (QuantileFunction)
+          superTitle: Quantile
           
     - name: plot
       title: ""

@@ -1,23 +1,28 @@
 ---
-name:  PoissonDistribution
-title: Poisson Distribution
+name:  GeometricDistribution
+title: Geometric Distribution
 menuGroup: distrACTION
 menuSubgroup: Discrete distributions
 version: '1.0.0'
 jas: '1.2'
 
 options:
+    - title: X is first success
+      name: XisSuccess
+      type: Bool
+      default: TRUE
+      
     - title: Compute probability
       name: DistributionFunction
       type: Bool
       default: FALSE
-
 
     - title: Compute quantile(s)
       name: QuantileFunction
       type: Bool
       default: FALSE
       
+
 
     - name: DistributionFunctionType
       title: Mode for Distribution
@@ -51,7 +56,7 @@ options:
       default: 1
 
     - name: dp1
-      title: λ =
+      title: Probability =
       type: Number
-      default: 10
+      default: .1
 ...

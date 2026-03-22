@@ -1,6 +1,6 @@
 ---
-name:  PoissonDistribution
-title: Poisson Distribution
+name:  NegativeBinomialDistribution
+title: Negative Binomial Distribution
 menuGroup: distrACTION
 menuSubgroup: Discrete distributions
 version: '1.0.0'
@@ -18,6 +18,17 @@ options:
       type: Bool
       default: FALSE
       
+
+    - name: QuantileFunctionType
+      title: Mode for Quantiles
+      type: List
+      options: 
+        - title: central interval quantiles
+          name: central
+        - title: cumulative quantile
+          name: cumulative
+      default: central
+
 
     - name: DistributionFunctionType
       title: Mode for Distribution
@@ -51,7 +62,12 @@ options:
       default: 1
 
     - name: dp1
-      title: λ =
+      title: Size =
       type: Number
-      default: 10
+      default: 1
+
+    - name: dp2
+      title: Probability =
+      type: Number
+      default: 0.5
 ...

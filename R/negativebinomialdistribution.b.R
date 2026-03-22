@@ -1,6 +1,6 @@
-TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
-    "TDistributionClass",
-    inherit = TDistributionBase,
+NegativeBinomialDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
+    "NegativenbinomialDistributionClass",
+    inherit = NegativeBinomialDistributionBase,
     private = list(
       
       
@@ -18,49 +18,33 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # Which type of the quantile function is selected?
         QuantileFunctionType <- self$options$QuantileFunctionType ### == central|cumulative
         # Which type of the distribution function is selected?
-        DistributionFunctionType <- self$options$DistributionFunctionType ### == lower|higher|interval
+        DistributionFunctionType <- self$options$DistributionFunctionType ### == lower|higher|interval|is
         # The specification of the x value is extracted
         XValue <- self$options$x1
         # The specification of the p value is extracted
         Quantile <- self$options$p
         # The specification of the second value is extracted
         XValue2 <- self$options$x2
-        # The specification of the first distribution parameter (df1) is extracted
+        # The specification of the first distribution parameter (Size) is extracted
         DP1 <- self$options$dp1
-        # The specification of the second distribution parameter (NPC) is extracted
+        # The specification of the second distribution parameter (Probability) is extracted
         DP2 <- self$options$dp2
+        #The quantiles are recalculated if the central interval quantile is selected
+        if(QuantileFunction== "TRUE"){
+          if (QuantileFunctionType=="central") {
+            # The lower end of the central interval is calculated
+            LowerQuantile <- ((1-Quantile)/2)
+            # The hihger end of the central interval is calculated
+            HigherQuantile <- LowerQuantile+Quantile}}
         
         
         ##### 1.1.2) Definition of variables #####
         # The lower end of the distribution
-        LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-4
+        LowerTail <- DP1
         # The upper end of the distribution
-        UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(4*(DP2+1))
-        # The number of labels for the x-axis is defined
-        NumberOfAxisLabels <- (4*2)+1
-        # These settings are changed for small values of DP1
-        if(DP1<11){
-          LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-5
-          UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(5*(DP2+1))
-          NumberOfAxisLabels <- (5*2)+1}
-        if(DP1<6){
-          LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-6
-          UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(6*(DP2+1))
-          NumberOfAxisLabels <- (6*2)+1}
-        if(DP1<5){
-          LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-7
-          UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(7*(DP2+1))
-          NumberOfAxisLabels <- (7*2)+1}
-        if(DP1<3){
-          LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-8
-          UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(8*(DP2+1))
-          NumberOfAxisLabels <- (8*2)+1}
-        if(DP1<2){
-          LowerTail <- qt(0.5, df = DP1, ncp = DP2 )-10
-          UpperTail <- qt(0.5, df = DP1, ncp = DP2 )+(10*(DP2+1))
-          NumberOfAxisLabels <- (5*2)+1}
+        UpperTail <- ceiling(qnbinom(0.99999, DP1, DP2))-DP1
         # The number of values in the curve
-        N <- 1000
+        N <- ceiling(qnbinom(0.99999, DP1, DP2))-DP1
         # Define a variable for the columname of dataframes
         Columnames <- c("X", "Prob")
         # The quantiles are recalculated if the central interval quantile function is selected
@@ -68,33 +52,36 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunctionType=="central") {
             # The lower end of the central interval is calculated
             LowerQuantile <- ((1-Quantile)/2)
-            # The higher end of the central interval is calculated
+            # The hihger end of the central interval is calculated
             HigherQuantile <- LowerQuantile+Quantile}}
         
         
         ##### 1.1.3) Label setting ##### 
         # Label for the distribution parameters
-        InputLabel1 <- "df = "
-        InputLabel2 <- "δ = "
+        InputLabel1 <- "Size = "
+        InputLabel2 <- "Prob. = "
         DistributionFunctionTypeLabel <- ""
         QuantileFunctionTypeLabel <- ""
         # Label for the selected type of distribution function
+        if (DistributionFunctionType=="is"){
+          DistributionFunctionTypeLabel <- "Mode: P(X = x1)"}
         if (DistributionFunctionType=="lower"){
-          DistributionFunctionTypeLabel <- "Mode: P(X \u2264 x1)"}
+          DistributionFunctionTypeLabel <- "Mode: P(X ≤ x1)"}
         if (DistributionFunctionType=="interval"){
           DistributionFunctionTypeLabel <- paste("Mode: x2 = ", XValue2, sep = "")}
         if (DistributionFunctionType=="higher"){
-          DistributionFunctionTypeLabel <- "Mode: P(X \u2265 x1)"}
+          DistributionFunctionTypeLabel <- "Mode: P(X ≥ x1)"}
         if (QuantileFunctionType=="cumulative") {
           QuantileFunctionTypeLabel <- "cumulative mode"}      
         if (QuantileFunctionType=="central") {
           QuantileFunctionTypeLabel <- "central mode"}
         
-        
+
         ##### 1.1.4) Inputs table ######
         # The input matrix is created
         InputSummary <- matrix(ncol = 3, nrow = 2)
         # The values are transferred to the input matrix
+        InputSummary <- matrix(ncol = 3, nrow = 2)
         InputSummary[1,1] <- paste(InputLabel1, DP1, sep = "")
         InputSummary[2,1] <- paste(InputLabel2, DP2, sep = "")
         InputSummary[1,2] <- paste("x1 = ", XValue, sep = "")
@@ -116,27 +103,26 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ###### 1.2) Quantile & Distribution calculation ######
         ##### 1.2.1) Calculations #####
         # The sequence with the values for the distribution is created
-        x <- seq(LowerTail, UpperTail, length=N)
+        x <- seq(LowerTail, N)
         # Calculation of the distribution density
-        Density <- dt(x, DP1, DP2)
-        if(DistributionFunction=="TRUE"){
-          # Calculation of the quantile
-          DistributionResult1 <- pt(XValue, DP1, DP2)
-          # The quantile is saved as another variable
-          DistributionResult <- DistributionResult1
-          if (DistributionFunctionType == "interval"){
-            # In case of two x-values, the second quantile is calculated too
-            DistributionResult2 <- pt(XValue2, DP1, DP2)
-            # The result is the difference between the two quantiles
-            DistributionResult <- DistributionResult2-DistributionResult1}}
+        Density <- dnbinom(x, DP1, DP2)
+        if(DistributionFunction=="TRUE"){ 
+          # Calculation of the probability P(X <= x1)
+          DistributionResult <- pnbinom(XValue, DP1, DP2)
+          if(DistributionFunctionType=="higher"){
+            # P(X >= x1) = 1 - P(X < x1) = 1 - (P(X <= x1) - P(X = x1)) = 1 - P(X <= x1) + P(X = x1)
+            DistributionResult <- 1 - pnbinom(XValue, DP1, DP2) + dnbinom(XValue, DP1, DP2)}
+          if(DistributionFunctionType == "interval"){
+            # The result is the difference between the two quantiles P(x1 <= X <= x2) = P(X <= x2) - P(X <= x1) + P(X = x1)
+            DistributionResult <- pnbinom(XValue2, DP1, DP2) - pnbinom(XValue, DP1, DP2) + dnbinom(XValue, DP1, DP2)}}
         if(QuantileFunction=="TRUE"){
           if (QuantileFunctionType=="cumulative"){
-            # The x-value of the percentile is calculated
-            QuantileResult <- qt(Quantile, DP1, DP2)}
+            # The x-value of the percentil is calculated
+            QuantileResult <- qnbinom(Quantile, DP1, DP2)}
           if (QuantileFunctionType=="central"){
             # The x-value of the central interval is calculated
-            QuantileResult <- qt(LowerQuantile, DP1, DP2)
-            QuantileResult2 <- qt(HigherQuantile, DP1, DP2)}}
+            QuantileResult <- qnbinom(LowerQuantile, DP1, DP2)
+            QuantileResult2 <- qnbinom(HigherQuantile, DP1, DP2)}}
         
         
         ##### 1.2.2) Output Table #####
@@ -147,8 +133,8 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         OutputLabel22 <- ""
         # ... and filled by conditions. 
         if(DistributionFunction=="TRUE"){
-          if(DistributionFunctionType=="higher"){
-            DistributionResult <- 1-DistributionResult}
+          if(DistributionFunctionType=="is"){
+            DistributionResult <- dnbinom(XValue, DP1, DP2)}
           OutputLabel11 <- DistributionResult}
         if(QuantileFunction=="TRUE"){
           if (QuantileFunctionType=="cumulative") {
@@ -169,7 +155,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ##### 1.3.1) Data packing #####
         # The results are combined in a Dataframe
         Datas <- data.frame(x, Density)
-        # Names of the columns
+        # Names of the colums
         colnames(Datas) <-  Columnames
         # For calculating the searched area, a new variable is created  
         MainCurveData <- as.data.frame(Datas)
@@ -178,6 +164,9 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ##### 1.3.2) Remove values #####
         # Values which are not part of the searched area are removed
         if (DistributionFunction=="TRUE") {
+          if (DistributionFunctionType=="is") {
+            MainCurveData$Prob[MainCurveData$X != XValue] <- NA
+            MainCurveData$X[MainCurveData$X != XValue] <- NA}          
           if (DistributionFunctionType=="lower") {
             MainCurveData$Prob[MainCurveData$X > XValue] <- NA
             MainCurveData$X[MainCurveData$X > XValue] <- NA}
@@ -192,20 +181,20 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         
         
         ##### 1.3.3) Calculations for the plot #####
-        # The transparency of the lower quantile segment is defined
+        # The transcparency of the lower quantile segment is defined
         QuantileAlphaLow <- 1
-        # The transparency of the upper quantile segment is defined
+        # The transcparency of the upper quantile segment is defined
         QuantileAlphaHigh <- 1
         # The text for the quantiles legend is defined
         QuantileLabel <- "Quantile"
         # The size of the legends text is defined
         Textsize <- 16
         # The lowest segment of the x-axis is defined
-        LowerAxisSegment <- ceiling(LowerTail)
+        LowerAxisSegment <- LowerTail
         # The highest segment of the x-axis is defined
-        HigherAxisSegment <- floor(UpperTail)
+        HigherAxisSegment <- UpperTail
         # The segments of the x-axis are defined
-        AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, length.out = NumberOfAxisLabels)    
+        AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, by = 1)  
         # A variable for the position of the upper quantile is defined
         HigherSegment <- NA
         # A variable for the position of the lower quantile is defined
@@ -218,7 +207,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if(QuantileFunction=="TRUE"){
           if(QuantileFunctionType=="cumulative"){
             HigherSegment <- QuantileResult
-            HigherSegmentLength <- dt(HigherSegment, DP1, DP2)
+            HigherSegmentLength <- dnbinom(HigherSegment, DP1, DP2)
             # The length of the quantile segment is changed if it is too short
             if((HigherSegmentLength*18)<(max(Datas$Prob))){
               HigherSegmentLength <- ((max(Datas$Prob))/18)}
@@ -226,56 +215,57 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             LowerSegment <- HigherSegment
             LowerSegmentLength <- HigherSegmentLength}
           if(QuantileFunctionType=="central"){
-            LowerSegment <- qt(LowerQuantile, DP1, DP2)
-            LowerSegmentLength <- dt(LowerSegment, DP1, DP2)
-            HigherSegment <- qt(HigherQuantile, DP1, DP2)
-            HigherSegmentLength <- dt(HigherSegment, DP1, DP2)
+            LowerSegment <- qnbinom(LowerQuantile, DP1, DP2)
+            LowerSegmentLength <- dnbinom(LowerSegment, DP1, DP2)
+            HigherSegment <- qnbinom(HigherQuantile, DP1, DP2)
+            HigherSegmentLength <- dnbinom(HigherSegment, DP1, DP2)
             # Also this quantile segment is shortened if it is too short
-          if((LowerSegmentLength*18)<(max(Datas$Prob))){
-            LowerSegmentLength <- ((max(Datas$Prob))/18)
-            HigherSegmentLength <- ((max(Datas$Prob))/18)}}
+            if((LowerSegmentLength*18)<(max(Datas$Prob))){
+              LowerSegmentLength <- ((max(Datas$Prob))/18)
+              HigherSegmentLength <- ((max(Datas$Prob))/18)}}
 
+          
           ##### 1.3.4) Improvements of the plot by conditions #####
           # A value to check if the quantiles are within the x-axis is calculated      
           if(QuantileFunctionType=="cumulative"){
-            HighLineCheck <- qt(Quantile, DP1, DP2)}
+            HighLineCheck <- qnbinom(Quantile, DP1, DP2)}
           if(QuantileFunctionType=="central"){
-            HighLineCheck <- qt(HigherQuantile, DP1, DP2)
-            LowLineCheck <- qt(LowerQuantile, DP1, DP2)}
+            HighLineCheck <- qnbinom(HigherQuantile, DP1, DP2)
+            LowLineCheck <- qnbinom(LowerQuantile, DP1, DP2)}
           # Changes are done if the quantile is outside the x-axis
           if(QuantileFunctionType=="cumulative"){
             if(HighLineCheck>HigherAxisSegment){
               QuantileLabel <- "Quantile out of range"
-              QuantileAlphaLow <- 0
-              QuantileAlphaHigh <- 0
+              QuantAlphaLow <- 0
+              QuantAlphaHigh <- 0
               Textsize <- 10
               HigherSegment <- HigherAxisSegment
               LowerSegment <- HigherAxisSegment}
             if(HighLineCheck<LowerAxisSegment){
               QuantileLabel <- "Quantile out of range"
-              QuantileAlphaLow <- 0
-              QuantileAlphaHigh <- 0
+              QuantAlphaLow <- 0
+              QuantAlphaHigh <- 0
               Textsize <- 10
               HigherSegment <- HigherAxisSegment
               LowerSegment <- HigherAxisSegment}}
           if(QuantileFunctionType=="central"){
             if(HighLineCheck>HigherAxisSegment){
               QuantileLabel <- "(Upper) Quantile out of range"
-              QuantileAlphaHigh <- 0
+              QuantAlphaHigh <- 0
               Textsize <- 10
               HigherSegment <- HigherAxisSegment}
             if(LowLineCheck<LowerAxisSegment){
               QuantileLabel <- "(Lower) Quantile out of range"
-              QuantileAlphaLow <- 0
+              QuantAlphaLow <- 0
               Textsize <- 10
               LowerSegment <- LowerAxisSegment}
             if((LowLineCheck<LowerAxisSegment)&(HighLineCheck>HigherAxisSegment)){
               QuantileLabel <- "Quantile out of range"
-              QuantileAlphaHigh <- 0
-              QuantileAlphaLow <- 0
+              QuantAlphaHigh <- 0
+              QuantAlphaLow <- 0
               Textsize <- 10
               HigherSegment <- HigherAxisSegment
-              LowerSegment <- HigherAxisSegment}}}
+              LowerSegment <- LowerAxisSegment}}}
         
         
         ##### 1.3.5) Submit datas for plot #####
@@ -298,8 +288,9 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         image$setState(Dataset)
         
         
+        
         ###### 1.4) Error Messages #####
-        #Error if XValue\u2265XValue2
+        #Error if XValue≥XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
           Inputs$setError("x2 must be greater than x1. ")
           Outputs$setVisible(visible=FALSE)}},
@@ -309,7 +300,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       ########### 2.) Plot-Function ##########
       .plot=function(image, ...) {
         
-        
+      
         ###### 2.1) Extraction of values ######
         ##### 2.1.1) Extraction of the plot datas #####
         # The main dataset for the plot is extracted
@@ -354,11 +345,13 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         Linewidth <- 1
         # Color to fill points
         Color <- c("#e0bc6b", "#7b9ee6", "#9f9f9f")
-    
 
+        
         ###### 2.3) Creation of the plot ######
         ##### 2.3.1) Settings of the plot #####
-        Plot <- ggplot(PlotData, mapping = aes(x=X, y=Prob))+
+        Plot <- ggplot(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob))+
+          # # The whole distribution is plottet as background
+          geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob), fill="grey")+
           # X-axis-label
           ggplot2::xlab("")+
           # Y-axis-label
@@ -366,31 +359,28 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           # Add x-axis scale
           scale_x_continuous(breaks = AxisSegments)
         
+        
         ##### 2.3.2) Area ##### 
         if (DistributionFunction=="TRUE") {
           Plot <- Plot+
             # The area of the searched interval is marked
-            geom_area(mapping = aes(x=X, y=CurveProb, fill=" P (Area)"))+
+            geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
             # Set the colors of the legend
             scale_fill_manual(values = Color)}
-          
         
-          ##### 2.3.3) Quantile #####
-          if (QuantileFunction=="TRUE") {
-            Plot <- Plot+
-              # The lines of the quantiles are added
-              geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaLow)+
-              geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaHigh)+
-              # Set linetype
-              scale_linetype_manual(values=TypeOfLine)}        
-
+        
+        ##### 2.3.3) Quantile #####
+        if (QuantileFunction=="TRUE") {
+          Plot <- Plot+
+            # The lines of the quantiles are added
+            geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaLow)+
+            geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaHigh)+
+            # Set linetype
+            scale_linetype_manual(values=TypeOfLine)}
+        
         
         ##### 2.3.4) Final adjustments of the plot #####
         Plot <- Plot+
-          # The whole curve is plotted
-          geom_point(size =Pointsize, color=Color[1])+
-          # Connect the points by a line
-          geom_line()+
           # Theme of the Plot
           theme_classic()+
           # Set fontsize of the legend

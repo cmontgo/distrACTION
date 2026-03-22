@@ -7,4 +7,7 @@ A jamovi module that allows calculation of probabilities and quantiles (cumulati
   - Chi Square
 - Discrete
   - Binomial
+  - Geometric
+  - Hypergeometric
+  - Negative Binomial
   - Poisson
