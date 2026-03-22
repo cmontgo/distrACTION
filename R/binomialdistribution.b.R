@@ -41,6 +41,8 @@ BinomialDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ##### 1.1.2) Definition of variables #####
         # The lower end of the distribution
         LowerTail <- 0
+        # The upper end of the distribution
+        UpperTail <- XValue
         # The number of values in the curve
         N <-  DP1
         # Define a variable for the columname of dataframes
