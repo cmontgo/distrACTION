@@ -68,7 +68,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunctionType=="central") {
             # The lower end of the central interval is calculated
             LowerQuantile <- ((1-Quantile)/2)
-            # The hihger end of the central interval is calculated
+            # The higher end of the central interval is calculated
             HigherQuantile <- LowerQuantile+Quantile}}
         
         
@@ -131,7 +131,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             DistributionResult <- DistributionResult2-DistributionResult1}}
         if(QuantileFunction=="TRUE"){
           if (QuantileFunctionType=="cumulative"){
-            # The x-value of the percentil is calculated
+            # The x-value of the percentile is calculated
             QuantileResult <- qt(Quantile, DP1, DP2)}
           if (QuantileFunctionType=="central"){
             # The x-value of the central interval is calculated
@@ -169,7 +169,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ##### 1.3.1) Data packing #####
         # The results are combined in a Dataframe
         Datas <- data.frame(x, Density)
-        # Names of the colums
+        # Names of the columns
         colnames(Datas) <-  Columnames
         # For calculating the searched area, a new variable is created  
         MainCurveData <- as.data.frame(Datas)
@@ -192,9 +192,9 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         
         
         ##### 1.3.3) Calculations for the plot #####
-        # The transcparency of the lower quantile segment is defined
+        # The transparency of the lower quantile segment is defined
         QuantileAlphaLow <- 1
-        # The transcparency of the upper quantile segment is defined
+        # The transparency of the upper quantile segment is defined
         QuantileAlphaHigh <- 1
         # The text for the quantiles legend is defined
         QuantileLabel <- "Quantile"
@@ -358,7 +358,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
         ###### 2.3) Creation of the plot ######
         ##### 2.3.1) Settings of the plot #####
-        Plot <- ggplot(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob))+
+        Plot <- ggplot(PlotData, mapping = aes(x=X, y=Prob))+
           # X-axis-label
           ggplot2::xlab("")+
           # Y-axis-label
@@ -370,7 +370,7 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (DistributionFunction=="TRUE") {
           Plot <- Plot+
             # The area of the searched interval is marked
-            geom_area(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
+            geom_area(mapping = aes(x=X, y=CurveProb, fill=" P (Area)"))+
             # Set the colors of the legend
             scale_fill_manual(values = Color)}
           
@@ -379,15 +379,15 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunction=="TRUE") {
             Plot <- Plot+
               # The lines of the quantiles are added
-              geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaLow)+
-              geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaHigh)+
+              geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaLow)+
+              geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaHigh)+
               # Set linetype
               scale_linetype_manual(values=TypeOfLine)}        
 
         
         ##### 2.3.4) Final adjustments of the plot #####
         Plot <- Plot+
-          # The whole curve is plottet
+          # The whole curve is plotted
           geom_point(size =Pointsize, color=Color[1])+
           # Connect the points by a line
           geom_line()+
