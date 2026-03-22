@@ -36,7 +36,15 @@ items:
           title: Quantile
           type: number
           visible: (QuantileFunction)
-          
+        - name: MeanColumn
+          title: Mean
+          type: text
+          superTitle: Distribution Statistics
+        - name: SDColumn
+          title: SD
+          type: text
+          superTitle: Distribution Statistics
+
     - name: plot
       title: ""
       type:  Image
