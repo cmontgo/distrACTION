@@ -10,7 +10,7 @@ TDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             QuantileFunction = FALSE,
             QuantileFunctionType = "central",
             DistributionFunctionType = "lower",
-            x1 = NULL,
+            x1 = 0,
             p = 0.5,
             x2 = 1,
             dp1 = 1,
@@ -47,7 +47,8 @@ TDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 default="lower")
             private$..x1 <- jmvcore::OptionNumber$new(
                 "x1",
-                x1)
+                x1,
+                default=0)
             private$..p <- jmvcore::OptionNumber$new(
                 "p",
                 p,
@@ -238,7 +239,7 @@ TDistribution <- function(
     QuantileFunction = FALSE,
     QuantileFunctionType = "central",
     DistributionFunctionType = "lower",
-    x1,
+    x1 = 0,
     p = 0.5,
     x2 = 1,
     dp1 = 1,

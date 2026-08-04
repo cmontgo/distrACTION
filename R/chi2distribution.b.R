@@ -273,7 +273,7 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # The text for the quantiles legend 
         QuantileLabel <- Dataset[7,4]
         # The textsize of the legend
-        Textsize <- Dataset[8,4]
+        Textsize <- as.numeric(Dataset[8,4])
         # The x-axis labels
         AxisSegments <- as.numeric(Dataset[,5])
         AxisSegments <- na.omit(AxisSegments)
@@ -321,8 +321,8 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
             # The lines of the quantiles are added
-            do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
-            do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
+            do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+            do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
         
