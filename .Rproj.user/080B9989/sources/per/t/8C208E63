@@ -1,0 +1,26 @@
+{
+    "id": "8C208E63",
+    "path": "~/Documents/GitHub/distrACTION/R/hypergeometricdistribution.b.R",
+    "project_path": "R/hypergeometricdistribution.b.R",
+    "type": "r_source",
+    "hash": "744830501",
+    "contents": "",
+    "dirty": false,
+    "created": 1692279415186.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "359,21",
+        "scrollLine": "343"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1774190814,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1774190814,
+    "read_only": false,
+    "read_only_alternatives": []
+}

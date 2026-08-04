@@ -1,0 +1,26 @@
+{
+    "id": "1E101391",
+    "path": "~/Documents/GitHub/distrACTION/R/binomialdistribution.b.R",
+    "project_path": "R/binomialdistribution.b.R",
+    "type": "r_source",
+    "hash": "121044193",
+    "contents": "",
+    "dirty": false,
+    "created": 1692278352282.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "68,54",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1692278694,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1692278694,
+    "read_only": false,
+    "read_only_alternatives": []
+}

@@ -1,0 +1,11 @@
+rejected <-0
+for (x in 1:100){
+  tenbeads <- abs(round(rnorm(10, mean = 0.46, sd = 0.01),4))
+  print(tenbeads)
+  pvalue <- t.test(tenbeads, mu=0.48,alternative ="less")$p.value
+  print(pvalue)
+  if (pvalue<0.05) {
+    rejected <- rejected +1
+  }
+}
+print(rejected)

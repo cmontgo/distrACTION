@@ -1,33 +1,27 @@
 ---
-name:  NegativeBinomialDistribution
-title: Negative Binomial Distribution
+name:  HypergeometricDistribution
+title: Hypergeometric Distribution
 menuGroup: distrACTION
 menuSubgroup: Discrete distributions
 version: '1.0.0'
 jas: '1.2'
 
 options:
+    - title: X is first success
+      name: XisSuccess
+      type: Bool
+      default: TRUE
+      
     - title: Compute probability
       name: DistributionFunction
       type: Bool
       default: FALSE
-
 
     - title: Compute quantile(s)
       name: QuantileFunction
       type: Bool
       default: FALSE
       
-
-    - name: QuantileFunctionType
-      title: Mode for Quantiles
-      type: List
-      options: 
-        - title: central interval quantiles
-          name: central
-        - title: cumulative quantile
-          name: cumulative
-      default: central
 
 
     - name: DistributionFunctionType
@@ -62,12 +56,7 @@ options:
       default: 1
 
     - name: dp1
-      title: Size =
-      type: Number
-      default: 1
-
-    - name: dp2
       title: Probability =
       type: Number
-      default: 0.5
+      default: .1
 ...
