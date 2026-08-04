@@ -321,8 +321,8 @@ Chi2DistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
             # The lines of the quantiles are added
-            geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaLow)+
-            geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaHigh)+
+            do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+            do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
         
