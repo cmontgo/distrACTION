@@ -46,6 +46,7 @@ options:
     - name: x1
       title: x1 =
       type: Number
+      default: 0
 
     - name: p
       title: p =

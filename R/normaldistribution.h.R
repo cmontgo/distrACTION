@@ -10,7 +10,7 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
             QuantileFunction = FALSE,
             QuantileFunctionType = "central",
             DistributionFunctionType = "lower",
-            x1 = NULL,
+            x1 = 0,
             p = 0.5,
             x2 = 1,
             dp1 = 0,
@@ -47,7 +47,8 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 default="lower")
             private$..x1 <- jmvcore::OptionNumber$new(
                 "x1",
-                x1)
+                x1,
+                default=0)
             private$..p <- jmvcore::OptionNumber$new(
                 "p",
                 p,
@@ -237,7 +238,7 @@ Normaldistribution <- function(
     QuantileFunction = FALSE,
     QuantileFunctionType = "central",
     DistributionFunctionType = "lower",
-    x1,
+    x1 = 0,
     p = 0.5,
     x2 = 1,
     dp1 = 0,
