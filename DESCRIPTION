@@ -8,6 +8,24 @@ Description: A tool for calculating and plotting probabilities and quantiles (cu
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.5), R6, ggplot2 (>= 3.3.0)
+Imports: jmvcore (>= 0.8.5), R6, ggplot2
+Collate:
+    'ggplot_compat.R'
+    'normaldistribution.h.R'
+    'normaldistribution.b.R'
+    'tdistribution.h.R'
+    'tdistribution.b.R'
+    'chi2distribution.h.R'
+    'chi2distribution.b.R'
+    'fdistribution.h.R'
+    'fdistribution.b.R'
+    'binomialdistribution.h.R'
+    'binomialdistribution.b.R'
+    'poissondistribution.h.R'
+    'poissondistribution.b.R'
+    'geometricdistribution.h.R'
+    'geometricdistribution.b.R'
+    'hypergeometricdistribution.h.R'
+    'hypergeometricdistribution.b.R'
 URL: https://github.com/methodenlehre/distrACTION
 BugReports: https://github.com/methodenlehre/distrACTION/issues
