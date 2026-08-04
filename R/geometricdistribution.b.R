@@ -354,9 +354,9 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
 
         ###### 2.3) Creation of the plot ######
         ##### 2.3.1) Settings of the plot #####
-        Plot <- ggplot(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob))+
+        Plot <- ggplot(PlotData, mapping = aes(x=X, y=Prob))+
           # The whole distribution is plotted as background
-          geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob), fill="grey")+
+          geom_col(data = PlotData, mapping = aes(x=X, y=Prob), fill="grey")+
           # X-axis-label
           ggplot2::xlab("")+
           # Y-axis-label
@@ -369,7 +369,7 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (DistributionFunction=="TRUE") {
           Plot <- Plot+
             # The area of the searched interval is marked
-            geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
+            geom_col(data = PlotData, mapping = aes(x=X, y=CurveProb, fill=" P (Area)"))+
             # Set the colors of the legend
             scale_fill_manual(values = Color)}
 
@@ -378,8 +378,8 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
             # The lines of the quantiles are added
-            do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
-            do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
+            geom_segment(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, linetype=QuantileLabel), colour = Color[2], alpha = QuantileAlphaLow, linewidth = Linewidth)+
+            geom_segment(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel), colour = Color[2], alpha = QuantileAlphaHigh, linewidth = Linewidth)+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
 
