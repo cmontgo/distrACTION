@@ -10,7 +10,7 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
             QuantileFunction = FALSE,
             QuantileFunctionType = "central",
             DistributionFunctionType = "lower",
-            x1 = NULL,
+            x1 = 0,
             p = 0.5,
             x2 = 1,
             dp1 = 0,
@@ -47,7 +47,8 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 default="lower")
             private$..x1 <- jmvcore::OptionNumber$new(
                 "x1",
-                x1)
+                x1,
+                default=0)
             private$..p <- jmvcore::OptionNumber$new(
                 "p",
                 p,
@@ -137,7 +138,6 @@ NormaldistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 options=options,
                 name="Outputs",
                 title="Results",
-                visible="(DistributionFunction || QuantileFunction)",
                 rows=1,
                 clearWith=list(
                     "group",
@@ -167,7 +167,17 @@ NormaldistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                         `title`="x2", 
                         `type`="number", 
                         `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
-                        `superTitle`="Quantiles"))))
+                        `superTitle`="Quantiles"),
+                    list(
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"),
+                    list(
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",
@@ -228,7 +238,7 @@ Normaldistribution <- function(
     QuantileFunction = FALSE,
     QuantileFunctionType = "central",
     DistributionFunctionType = "lower",
-    x1,
+    x1 = 0,
     p = 0.5,
     x2 = 1,
     dp1 = 0,

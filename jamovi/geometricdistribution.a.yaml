@@ -1,11 +1,10 @@
 ---
-name:  TDistribution
-title: T-Distribution
+name:  GeometricDistribution
+title: Geometric Distribution
 menuGroup: distrACTION
-menuSubgroup: Continuous distributions
+menuSubgroup: Discrete distributions
 version: '1.0.0'
 jas: '1.2'
-
 
 options:
     - title: Compute probability
@@ -18,12 +17,12 @@ options:
       name: QuantileFunction
       type: Bool
       default: FALSE
-      
+
 
     - name: QuantileFunctionType
       title: Mode for Quantiles
       type: List
-      options: 
+      options:
         - title: central interval quantiles
           name: central
         - title: cumulative quantile
@@ -41,7 +40,9 @@ options:
           name:  higher
         - title: P(x1 ≤ X ≤ x2)
           name: interval
-      default: lower
+        - title: P(X = x1)
+          name: is
+      default: is
 
     - name: x1
       title: x1 =
@@ -61,14 +62,9 @@ options:
       default: 1
 
     - name: dp1
-      title: df =
+      title: Probability =
       type: Number
-      min: 1
-      default: 1
-      
-    - name: dp2
-      title: δ = 
-      type: Number
-      default: 0
-
+      min: 1e-10
+      max: 1
+      default: 0.5
 ...

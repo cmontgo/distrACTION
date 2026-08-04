@@ -1,6 +1,6 @@
 ---
-name:  Chi2Distribution
-title: χ2-Distribution
+name:  GeometricDistribution
+title: Geometric Distribution
 jrs:   '1.1'
 
 items:
@@ -17,7 +17,7 @@ items:
           type: text
           visible: (DistributionFunction)
         - name: QuantileFunctionColumn
-          title: "'Compute quantile'"
+          title: "'Compute quantile(s)'"
           type: text
           visible: (QuantileFunction)
 
@@ -36,9 +36,20 @@ items:
           format: zto
           visible: (DistributionFunction)
         - name: QuantileResultColumn
-          title: Quantile
-          type: number
-          visible: (QuantileFunction)
+          title: x1
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="cumulative")
+          superTitle: Quantile
+        - name: QuantileLowerResultColumn
+          title: x1
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
+        - name: QuantileUpperResultColumn
+          title: x2
+          type: integer
+          visible: (QuantileFunction && QuantileFunctionType=="central")
+          superTitle: Quantiles
         - name: MeanColumn
           title: Mean
           type: text

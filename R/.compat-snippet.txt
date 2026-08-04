@@ -1,0 +1,10 @@
+
+# ---- ggplot2 compatibility helper for geom_segment linewidth/size ----
+segment_line_args <- .gg_linewidth_arg(Linewidth)
+
+if (QuantileFunction=="TRUE") {
+  Plot <- Plot+
+    do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), segment_line_args))+
+    do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), segment_line_args))+
+    scale_linetype_manual(values=TypeOfLine)
+}

@@ -150,7 +150,17 @@ FDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `name`="QuantileResultColumn", 
                         `title`="Quantile", 
                         `type`="number", 
-                        `visible`="(QuantileFunction)"))))
+                        `visible`="(QuantileFunction)"),
+                    list(
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"),
+                    list(
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",

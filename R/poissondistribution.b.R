@@ -32,7 +32,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       # The lower end of the distribution
       LowerTail <- 0
       # The upper end of the distribution
-      UpperTail <- UpperTail <- ceiling(qpois(0.99999, DP1))
+      UpperTail <- ceiling(qpois(0.99999, DP1))
       # The number of values in the curve
       N <-  ceiling(qpois(0.99999, DP1))
       # Define a variable for the columname of dataframes
@@ -55,9 +55,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       
       
       ##### 1.1.4) Inputs table ######
-      # The input matrix is created
-      InputSummary <- matrix(ncol = 3, nrow = 2)
-      # The values are transferred to the input matrix
+      # The input matrix is created and values are transferred to it
       InputSummary <- matrix(ncol = 3, nrow = 2)
       InputSummary[1,1] <- paste(InputLabel1, DP1, sep = "")
       InputSummary[1,2] <- paste("x1 = ", XValue, sep = "")
@@ -92,7 +90,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           # The result is the difference between the two quantiles P(x1 <= X <= x2) = P(X <= x2) - P(X <= x1) + P(X = x1)
           DistributionResult <- ppois(XValue2, DP1) - ppois(XValue, DP1) + dpois(XValue, DP1)}}
       if(QuantileFunction=="TRUE"){
-          # The x-value of the percentil is calculated
+          # The x-value of the percentile is calculated
           QuantileResult <- qpois(Quantile, DP1)}
       
       
@@ -109,20 +107,28 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         OutputLabel11 <- DistributionResult}
       if(QuantileFunction=="TRUE"){
         OutputLabel12 <- QuantileResult}
+      # Mean = lambda, SD = sqrt(lambda)
+      if (DP1 >= 0) {
+        StatMeanStr <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(sqrt(DP1), 4), nsmall=0, scientific=FALSE)
+      } else {
+        StatMeanStr <- "undefined (λ < 0)"
+        StatSDStr   <- "undefined (λ < 0)"
+      }
       # The Output-Matrix is written to the according Result-Frame
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
-        QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22))
+        MeanColumn=StatMeanStr,
+        SDColumn=StatSDStr))
       
       
       ###### 1.3) Plot preparation ######
       ##### 1.3.1) Data packing #####
       # The results are combined in a Dataframe
       Datas <- data.frame(x, Density)
-      # Names of the colums
+      # Names of the columns
       colnames(Datas) <-  Columnames
       # For calculating the searched area, a new variable is created  
       MainCurveData <- as.data.frame(Datas)
@@ -148,9 +154,9 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       
       
       ##### 1.3.3) Calculations for the plot #####
-      # The transcparency of the lower quantile segment is defined
+      # The transparency of the lower quantile segment is defined
       QuantileAlphaLow <- 1
-      # The transcparency of the upper quantile segment is defined
+      # The transparency of the upper quantile segment is defined
       QuantileAlphaHigh <- 1
       # The text for the quantiles legend is defined
       QuantileLabel <- "Quantile"
@@ -162,6 +168,12 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       HigherAxisSegment <- UpperTail
       # The segments of the x-axis are defined
       AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, by = 1)  
+      if(N>50){
+        binwidth <- floor(N/50)*5
+        AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, by =  binwidth)}
+      if(N>100){
+        binwidth <- floor(N/100)*10
+        AxisSegments <- seq(LowerAxisSegment, HigherAxisSegment, by =  binwidth)}
       # A variable for the position of the upper quantile is defined
       HigherSegment <- NA
       # A variable for the position of the lower quantile is defined
@@ -188,15 +200,15 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # Changes are done if the quantile is outside the x-axis
           if(HighLineCheck>HigherAxisSegment){
             QuantileLabel <- "Quantile out of range"
-            QuantAlphaLow <- 0
-            QuantAlphaHigh <- 0
+            QuantileAlphaLow <- 0
+            QuantileAlphaHigh <- 0
             Textsize <- 10
             HigherSegment <- HigherAxisSegment
             LowerSegment <- HigherAxisSegment}
           if(HighLineCheck<LowerAxisSegment){
             QuantileLabel <- "Quantile out of range"
-            QuantAlphaLow <- 0
-            QuantAlphaHigh <- 0
+            QuantileAlphaLow <- 0
+            QuantileAlphaHigh <- 0
             Textsize <- 10
             HigherSegment <- HigherAxisSegment
             LowerSegment <- HigherAxisSegment}}
@@ -257,7 +269,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       # The text for the quantiles legend 
       QuantileLabel <- Dataset[7,4]
       # The textsize of the legend
-      Textsize <- Dataset[8,4]
+      Textsize <- as.numeric(Dataset[8,4])
       # The x-axis labels
       AxisSegments <- as.numeric(Dataset[,5])
       AxisSegments <- na.omit(AxisSegments)
@@ -283,9 +295,9 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       
       ###### 2.3) Creation of the plot ######
       ##### 2.3.1) Settings of the plot #####
-      Plot <- ggplot(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob))+
-        # # The whole distribution is plottet as background
-        geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$Prob), fill="grey")+
+      Plot <- ggplot(PlotData, mapping = aes(x=X, y=Prob))+
+        # # The whole distribution is plotted as background
+        geom_col(mapping = aes(x=X, y=Prob), fill="grey")+
         # X-axis-label
         ggplot2::xlab("")+
         # Y-axis-label
@@ -298,7 +310,7 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       if (DistributionFunction=="TRUE") {
         Plot <- Plot+
           # The area of the searched interval is marked
-          geom_col(PlotData, mapping = aes(x=PlotData$X, y=PlotData$CurveProb, fill=" P (Area)"))+
+          geom_col(mapping = aes(x=X, y=CurveProb, fill=" P (Area)"))+
           # Set the colors of the legend
           scale_fill_manual(values = Color)}
       
@@ -307,8 +319,8 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       if (QuantileFunction=="TRUE") {
         Plot <- Plot+
           # The lines of the quantiles are added
-          geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaLow)+
-          geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], size = Linewidth,  alpha = QuantileAlphaHigh)+
+          do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+          do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
           # Set linetype
           scale_linetype_manual(values=TypeOfLine)}
       

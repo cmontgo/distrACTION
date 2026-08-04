@@ -25,7 +25,7 @@ items:
       title: "Results"
       type: Table
       rows: 1
-      clearWith:  # <-- here
+      clearWith:
         - group
         - alt
         - varEq
@@ -38,7 +38,15 @@ items:
           title: Quantile
           type: number
           visible: (QuantileFunction)
-          
+        - name: MeanColumn
+          title: Mean
+          type: text
+          superTitle: Distribution Statistics
+        - name: SDColumn
+          title: SD
+          type: text
+          superTitle: Distribution Statistics
+
     - name: plot
       title: ""
       type:  Image
