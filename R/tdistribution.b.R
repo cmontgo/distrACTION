@@ -395,8 +395,8 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           if (QuantileFunction=="TRUE") {
             Plot <- Plot+
               # The lines of the quantiles are added
-              geom_segment(aes(linetype=QuantileLabel), x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, colour = Color[2], alpha = QuantileAlphaLow, linewidth = Linewidth)+
-              geom_segment(aes(linetype=QuantileLabel), x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, colour = Color[2], alpha = QuantileAlphaHigh, linewidth = Linewidth)+
+              do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+              do.call(geom_segment, c(list(aes(linetype=QuantileLabel), x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
               # Set linetype
               scale_linetype_manual(values=TypeOfLine)}        
 
