@@ -6,14 +6,14 @@ GeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            XisSuccess = TRUE,
             DistributionFunction = FALSE,
             QuantileFunction = FALSE,
+            QuantileFunctionType = "central",
             DistributionFunctionType = "is",
             x1 = 0,
             p = 0.5,
             x2 = 1,
-            dp1 = 0.1, ...) {
+            dp1 = 0.5, ...) {
 
             super$initialize(
                 package="distrACTION",
@@ -21,10 +21,6 @@ GeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                 requiresData=FALSE,
                 ...)
 
-            private$..XisSuccess <- jmvcore::OptionBool$new(
-                "XisSuccess",
-                XisSuccess,
-                default=TRUE)
             private$..DistributionFunction <- jmvcore::OptionBool$new(
                 "DistributionFunction",
                 DistributionFunction,
@@ -33,6 +29,13 @@ GeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                 "QuantileFunction",
                 QuantileFunction,
                 default=FALSE)
+            private$..QuantileFunctionType <- jmvcore::OptionList$new(
+                "QuantileFunctionType",
+                QuantileFunctionType,
+                options=list(
+                    "central",
+                    "cumulative"),
+                default="central")
             private$..DistributionFunctionType <- jmvcore::OptionList$new(
                 "DistributionFunctionType",
                 DistributionFunctionType,
@@ -59,11 +62,13 @@ GeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R
             private$..dp1 <- jmvcore::OptionNumber$new(
                 "dp1",
                 dp1,
-                default=0.1)
+                min=0,
+                max=1,
+                default=0.5)
 
-            self$.addOption(private$..XisSuccess)
             self$.addOption(private$..DistributionFunction)
             self$.addOption(private$..QuantileFunction)
+            self$.addOption(private$..QuantileFunctionType)
             self$.addOption(private$..DistributionFunctionType)
             self$.addOption(private$..x1)
             self$.addOption(private$..p)
@@ -71,18 +76,18 @@ GeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R
             self$.addOption(private$..dp1)
         }),
     active = list(
-        XisSuccess = function() private$..XisSuccess$value,
         DistributionFunction = function() private$..DistributionFunction$value,
         QuantileFunction = function() private$..QuantileFunction$value,
+        QuantileFunctionType = function() private$..QuantileFunctionType$value,
         DistributionFunctionType = function() private$..DistributionFunctionType$value,
         x1 = function() private$..x1$value,
         p = function() private$..p$value,
         x2 = function() private$..x2$value,
         dp1 = function() private$..dp1$value),
     private = list(
-        ..XisSuccess = NA,
         ..DistributionFunction = NA,
         ..QuantileFunction = NA,
+        ..QuantileFunctionType = NA,
         ..DistributionFunctionType = NA,
         ..x1 = NA,
         ..p = NA,
@@ -116,12 +121,12 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                         `type`="text"),
                     list(
                         `name`="DistributionFunctionColumn", 
-                        `title`="Compute probability", 
+                        `title`="'Compute probability'", 
                         `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
                         `name`="QuantileFunctionColumn", 
-                        `title`="Compute quantile(s)", 
+                        `title`="'Compute quantile(s)'", 
                         `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
@@ -144,8 +149,30 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                         `name`="QuantileResultColumn", 
                         `title`="x1", 
                         `type`="integer", 
-                        `visible`="(QuantileFunction)", 
-                        `superTitle`="Quantile"))))
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"cumulative\")", 
+                        `superTitle`="Quantile"),
+                    list(
+                        `name`="QuantileLowerResultColumn", 
+                        `title`="x1", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
+                        `superTitle`="Quantiles"),
+                    list(
+                        `name`="QuantileUpperResultColumn", 
+                        `title`="x2", 
+                        `type`="integer", 
+                        `visible`="(QuantileFunction && QuantileFunctionType==\"central\")", 
+                        `superTitle`="Quantiles"),
+                    list(
+                        `name`="MeanColumn", 
+                        `title`="Mean", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"),
+                    list(
+                        `name`="SDColumn", 
+                        `title`="SD", 
+                        `type`="text", 
+                        `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="plot",
@@ -171,15 +198,16 @@ GeometricDistributionBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 revision = revision,
                 pause = NULL,
                 completeWhenFilled = FALSE,
-                requiresMissings = FALSE)
+                requiresMissings = FALSE,
+                weightsSupport = 'na')
         }))
 
 #' Geometric Distribution
 #'
 #' 
-#' @param XisSuccess .
 #' @param DistributionFunction .
 #' @param QuantileFunction .
+#' @param QuantileFunctionType .
 #' @param DistributionFunctionType .
 #' @param x1 .
 #' @param p .
@@ -200,23 +228,23 @@ GeometricDistributionBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
 #'
 #' @export
 GeometricDistribution <- function(
-    XisSuccess = TRUE,
     DistributionFunction = FALSE,
     QuantileFunction = FALSE,
+    QuantileFunctionType = "central",
     DistributionFunctionType = "is",
     x1 = 0,
     p = 0.5,
     x2 = 1,
-    dp1 = 0.1) {
+    dp1 = 0.5) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("GeometricDistribution requires jmvcore to be installed (restart may be required)")
 
 
     options <- GeometricDistributionOptions$new(
-        XisSuccess = XisSuccess,
         DistributionFunction = DistributionFunction,
         QuantileFunction = QuantileFunction,
+        QuantileFunctionType = QuantileFunctionType,
         DistributionFunctionType = DistributionFunctionType,
         x1 = x1,
         p = p,
