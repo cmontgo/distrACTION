@@ -70,10 +70,12 @@ options:
     - name: dp2
       title: Successes in Population (K) =
       type: Number
+      min: 0
       default: 10
 
     - name: dp3
       title: Sample Size (n) =
       type: Number
+      min: 0
       default: 5
 ...

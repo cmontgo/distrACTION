@@ -26,11 +26,11 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # The specification of the second value is extracted
         XValue2 <- self$options$x2
         # Population size (N)
-        DP1 <- self$options$dp1
+        DP1 <- max(1, self$options$dp1)
         # Successes in population (K)
-        DP2 <- self$options$dp2
+        DP2 <- min(max(0, self$options$dp2), DP1)
         # Sample size (n)
-        DP3 <- self$options$dp3
+        DP3 <- min(max(0, self$options$dp3), DP1)
         # The quantiles are recalculated if the central interval quantile is selected
         if(QuantileFunction== "TRUE"){
           if (QuantileFunctionType=="central") {
