@@ -72,7 +72,6 @@ analyses:
     menuSubgroup: Discrete distributions
     menuTitle: Hypergeometric Distribution
     category: analyses
-usesNative: true
 minApp: 1.0.8
 
 ...
