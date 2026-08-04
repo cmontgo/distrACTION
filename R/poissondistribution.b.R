@@ -108,15 +108,18 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       if(QuantileFunction=="TRUE"){
         OutputLabel12 <- QuantileResult}
       # Mean = lambda, SD = sqrt(lambda)
-      StatMeanStr <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
-      StatSDStr   <- format(round(sqrt(DP1), 4), nsmall=0, scientific=FALSE)
+      if (DP1 >= 0) {
+        StatMeanStr <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
+        StatSDStr   <- format(round(sqrt(DP1), 4), nsmall=0, scientific=FALSE)
+      } else {
+        StatMeanStr <- "undefined (λ < 0)"
+        StatSDStr   <- "undefined (λ < 0)"
+      }
       # The Output-Matrix is written to the according Result-Frame
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,
         QuantileResultColumn=OutputLabel12,
-        QuantileLowerResultColumn=OutputLabel12,
-        QuantileUpperResultColumn=OutputLabel22,
         MeanColumn=StatMeanStr,
         SDColumn=StatSDStr))
       
@@ -316,8 +319,8 @@ PoissonDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       if (QuantileFunction=="TRUE") {
         Plot <- Plot+
           # The lines of the quantiles are added
-          geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaLow)+
-          geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], linewidth = Linewidth,  alpha = QuantileAlphaHigh)+
+          do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+          do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
           # Set linetype
           scale_linetype_manual(values=TypeOfLine)}
       

@@ -1,7 +1,7 @@
 Package: distrACTION
 Type: Package
 Title: distrACTION
-Version: 1.1.0
+Version: 1.2.1
 Author: Boris Mayer, Michael Rihs, Cameron Redsell-Montgomerie 
 Maintainer: Boris Mayer <boris.mayer@unibe.ch>
 Description: A tool for calculating and plotting probabilities and quantiles (cumulative and central) for a number of continuous and discrete distributions. 
