@@ -142,12 +142,17 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
         # Mean = n*K/N, Variance = n*K*(N-K)*(N-n)/(N^2*(N-1))
-        StatMeanStr <- format(round(DP3 * DP2 / DP1, 4), nsmall=0, scientific=FALSE)
-        if (DP1 > 1) {
-          StatVar <- DP3 * DP2 * (DP1 - DP2) * (DP1 - DP3) / (DP1^2 * (DP1 - 1))
-          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+        if (DP1 > 0 && DP2 >= 0 && DP3 >= 0 && DP2 <= DP1 && DP3 <= DP1) {
+          StatMeanStr <- format(round(DP3 * DP2 / DP1, 4), nsmall=0, scientific=FALSE)
+          if (DP1 > 1) {
+            StatVar <- DP3 * DP2 * (DP1 - DP2) * (DP1 - DP3) / (DP1^2 * (DP1 - 1))
+            StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+          } else {
+            StatSDStr <- "undefined (N ≤ 1)"
+          }
         } else {
-          StatSDStr <- "undefined (N ≤ 1)"
+          StatMeanStr <- "undefined (invalid parameters)"
+          StatSDStr <- "undefined (invalid parameters)"
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
@@ -381,8 +386,8 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
             # The lines of the quantiles are added
-            geom_segment(aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], size = Linewidth, alpha = QuantileAlphaLow)+
-            geom_segment(aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], size = Linewidth, alpha = QuantileAlphaHigh)+
+            do.call(geom_segment, c(list(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength,linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaLow), .gg_linewidth_arg(Linewidth)))+
+            do.call(geom_segment, c(list(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel),colour = Color[2], alpha = QuantileAlphaHigh), .gg_linewidth_arg(Linewidth)))+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
 

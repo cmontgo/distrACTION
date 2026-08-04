@@ -64,6 +64,7 @@ options:
     - name: dp1
       title: Population Size (N) =
       type: Number
+      min: 1
       default: 20
 
     - name: dp2
