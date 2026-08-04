@@ -336,7 +336,7 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # The text for the quantiles legend
         QuantileLabel <- Dataset[7,4]
         # The text size of the legend
-        Textsize <- Dataset[8,4]
+        Textsize <- as.numeric(Dataset[8,4])
         # The x-axis labels
         AxisSegments <- as.numeric(Dataset[,5])
         AxisSegments <- na.omit(AxisSegments)
@@ -386,8 +386,8 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         if (QuantileFunction=="TRUE") {
           Plot <- Plot+
             # The lines of the quantiles are added
-            geom_segment(mapping = aes(x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, linetype=QuantileLabel), colour = Color[2], alpha = QuantileAlphaLow, linewidth = Linewidth)+
-            geom_segment(mapping = aes(x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, linetype=QuantileLabel), colour = Color[2], alpha = QuantileAlphaHigh, linewidth = Linewidth)+
+            geom_segment(aes(linetype=QuantileLabel), x=LowerSegment, y=0, xend=LowerSegment, yend=LowerSegmentLength, colour = Color[2], alpha = QuantileAlphaLow, linewidth = Linewidth)+
+            geom_segment(aes(linetype=QuantileLabel), x=HigherSegment, y=0, xend=HigherSegment, yend=HigherSegmentLength, colour = Color[2], alpha = QuantileAlphaHigh, linewidth = Linewidth)+
             # Set linetype
             scale_linetype_manual(values=TypeOfLine)}
 
