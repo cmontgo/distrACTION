@@ -158,17 +158,16 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             OutputLabel22 <- QuantileResult2}}
         # Mean and SD for t distribution (central and non-central)
         if (DP1 > 1) {
-          StatMeanVal <- DP2 * sqrt(DP1/2) * exp(lgamma((DP1-1)/2) - lgamma(DP1/2))
-          StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+          StatMeanStr <- DP2 * sqrt(DP1/2) * exp(lgamma((DP1-1)/2) - lgamma(DP1/2))
         } else {
-          StatMeanVal <- NA
-          StatMeanStr <- "undefined (df \u2264 1)"
+          StatMeanStr <- NaN
         }
         if (DP1 > 2) {
+          StatMeanVal <- if (DP1 > 1) DP2 * sqrt(DP1/2) * exp(lgamma((DP1-1)/2) - lgamma(DP1/2)) else NA
           StatVar <- DP1*(1+DP2^2)/(DP1-2) - ifelse(is.na(StatMeanVal), 0, StatMeanVal^2)
-          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+          StatSDStr <- sqrt(StatVar)
         } else {
-          StatSDStr <- "undefined (df \u2264 2)"
+          StatSDStr <- NaN
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
@@ -317,8 +316,8 @@ TDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         ###### 1.4) Error Messages #####
         #Error if XValue\u2265XValue2
         if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
-          Inputs$setError("x2 must be greater than x1. ")
-          Outputs$setVisible(visible=FALSE)}},
+        jmvcore::reject("x2 must be greater than x1")
+        }},
       
       
       

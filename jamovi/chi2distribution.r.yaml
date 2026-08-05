@@ -13,11 +13,11 @@ items:
           title: Parameters
           type: text
         - name: DistributionFunctionColumn
-          title: "'Compute probability'"
+          title: "'Probability'"
           type: text
           visible: (DistributionFunction)
         - name: QuantileFunctionColumn
-          title: "'Compute quantile'"
+          title: "'Quantile'"
           type: text
           visible: (QuantileFunction)
 
@@ -25,10 +25,6 @@ items:
       title: "Results"
       type: Table
       rows: 1
-      clearWith:
-        - group
-        - alt
-        - varEq
       columns:
         - name: DistributionResultColumn
           title: Probability
@@ -41,11 +37,11 @@ items:
           visible: (QuantileFunction)
         - name: MeanColumn
           title: Mean
-          type: text
+          type: number
           superTitle: Distribution Statistics
         - name: SDColumn
           title: SD
-          type: text
+          type: number
           superTitle: Distribution Statistics
 
     - name: plot

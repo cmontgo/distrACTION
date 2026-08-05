@@ -7,13 +7,13 @@ version: '1.0.0'
 jas: '1.2'
 
 options:
-    - title: Compute probability
+    - title: Probability
       name: DistributionFunction
       type: Bool
       default: FALSE
 
 
-    - title: Compute quantile(s)
+    - title: Quantile(s)
       name: QuantileFunction
       type: Bool
       default: FALSE
@@ -65,9 +65,12 @@ options:
       title: Size =
       type: Number
       default: 10
+      min: 0
 
     - name: dp2
       title: Probability =
       type: Number
       default: 0.5
+      min: 0
+      max: 1
 ...
