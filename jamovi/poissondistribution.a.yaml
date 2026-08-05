@@ -7,13 +7,13 @@ version: '1.0.0'
 jas: '1.2'
 
 options:
-    - title: Compute probability
+    - title: Probability
       name: DistributionFunction
       type: Bool
       default: FALSE
 
 
-    - title: Compute quantile(s)
+    - title: Quantile(s)
       name: QuantileFunction
       type: Bool
       default: FALSE

@@ -127,12 +127,12 @@ BinomialDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
                         `type`="text"),
                     list(
                         `name`="DistributionFunctionColumn", 
-                        `title`="'Compute probability'", 
+                        `title`="'Probability'", 
                         `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
                         `name`="QuantileFunctionColumn", 
-                        `title`="'Compute quantile(s)'", 
+                        `title`="'Quantile(s)'", 
                         `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(

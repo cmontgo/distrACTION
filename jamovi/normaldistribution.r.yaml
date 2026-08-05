@@ -13,11 +13,11 @@ items:
           title: Parameters
           type: text
         - name: DistributionFunctionColumn
-          title: "'Compute probability'"
+          title: "'Probability'"
           type: text
           visible: (DistributionFunction)
         - name: QuantileFunctionColumn
-          title: "'Compute quantile(s)'"
+          title: "'Quantile(s)'"
           type: text
           visible: (QuantileFunction)
 

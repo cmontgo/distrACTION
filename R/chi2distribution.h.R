@@ -116,12 +116,12 @@ Chi2DistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6
                         `type`="text"),
                     list(
                         `name`="DistributionFunctionColumn", 
-                        `title`="'Compute probability'", 
+                        `title`="'Probability'", 
                         `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
                         `name`="QuantileFunctionColumn", 
-                        `title`="'Compute quantile'", 
+                        `title`="'Quantile'", 
                         `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
