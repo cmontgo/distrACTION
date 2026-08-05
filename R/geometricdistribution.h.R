@@ -121,12 +121,12 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                         `type`="text"),
                     list(
                         `name`="DistributionFunctionColumn", 
-                        `title`="'Compute probability'", 
+                        `title`="'Probability'", 
                         `type`="text", 
                         `visible`="(DistributionFunction)"),
                     list(
                         `name`="QuantileFunctionColumn", 
-                        `title`="'Compute quantile(s)'", 
+                        `title`="'Quantile(s)'", 
                         `type`="text", 
                         `visible`="(QuantileFunction)"))))
             self$add(jmvcore::Table$new(
@@ -166,12 +166,12 @@ GeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R
                     list(
                         `name`="MeanColumn", 
                         `title`="Mean", 
-                        `type`="text", 
+                        `type`="number", 
                         `superTitle`="Distribution Statistics"),
                     list(
                         `name`="SDColumn", 
                         `title`="SD", 
-                        `type`="text", 
+                        `type`="number", 
                         `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,

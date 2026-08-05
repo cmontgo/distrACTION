@@ -7,13 +7,13 @@ version: '1.0.0'
 jas: '1.2'
 
 options:
-    - title: Compute probability
+    - title: Probability
       name: DistributionFunction
       type: Bool
       default: FALSE
 
 
-    - title: Compute quantile
+    - title: Quantile
       name: QuantileFunction
       type: Bool
       default: FALSE
@@ -52,15 +52,18 @@ options:
       title: df1 =
       type: Number
       default: 3
+      min: 1
 
     - name: dp2
       title: df2 =
       type: Number
       default: 10
+      min: 1
       
     - name: dp3
       title: λ = 
       type: Number
       default: 0
+      min: 0
       
 ...
