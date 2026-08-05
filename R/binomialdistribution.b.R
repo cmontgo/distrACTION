@@ -134,8 +134,8 @@ BinomialDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             OutputLabel12 <- QuantileResult
             OutputLabel22 <- QuantileResult2}}
         # Mean = n*p, SD = sqrt(n*p*(1-p))
-        StatMeanStr <- format(round(DP1 * DP2, 4), nsmall=0, scientific=FALSE)
-        StatSDStr   <- format(round(sqrt(DP1 * DP2 * (1 - DP2)), 4), nsmall=0, scientific=FALSE)
+        StatMeanStr <- DP1 * DP2
+        StatSDStr   <- sqrt(DP1 * DP2 * (1 - DP2))
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
         Outputs$setRow(rowNo=1, values=list(

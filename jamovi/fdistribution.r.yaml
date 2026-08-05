@@ -37,11 +37,11 @@ items:
           visible: (QuantileFunction)
         - name: MeanColumn
           title: Mean
-          type: text
+          type: number
           superTitle: Distribution Statistics
         - name: SDColumn
           title: SD
-          type: text
+          type: number
           superTitle: Distribution Statistics
 
     - name: plot

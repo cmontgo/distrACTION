@@ -140,11 +140,11 @@ GeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             OutputLabel22 <- QuantileResult2}}
         # Mean = (1-p)/p, SD = sqrt(1-p)/p
         if (DP1 > 0 && DP1 <= 1) {
-          StatMeanStr <- format(round((1-DP1)/DP1, 4), nsmall=0, scientific=FALSE)
-          StatSDStr   <- format(round(sqrt(1-DP1)/DP1, 4), nsmall=0, scientific=FALSE)
+          StatMeanStr <- (1-DP1)/DP1
+          StatSDStr   <- sqrt(1-DP1)/DP1
         } else {
-          StatMeanStr <- "undefined (invalid p)"
-          StatSDStr   <- "undefined (invalid p)"
+          StatMeanStr <- NaN
+          StatSDStr   <- NaN
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs

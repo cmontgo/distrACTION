@@ -172,12 +172,12 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     list(
                         `name`="MeanColumn", 
                         `title`="Mean", 
-                        `type`="text", 
+                        `type`="number", 
                         `superTitle`="Distribution Statistics"),
                     list(
                         `name`="SDColumn", 
                         `title`="SD", 
-                        `type`="text", 
+                        `type`="number", 
                         `superTitle`="Distribution Statistics"))))
             self$add(jmvcore::Image$new(
                 options=options,

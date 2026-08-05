@@ -133,8 +133,8 @@ NormaldistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
           OutputLabel12 <- QuantileResult
           OutputLabel22 <- QuantileResult2}}
      # The Output-Matrix is written to the according Result-Frame
-      StatMean <- format(round(DP1, 4), nsmall=0, scientific=FALSE)
-      StatSD   <- format(round(DP2, 4), nsmall=0, scientific=FALSE)
+      StatMean <- DP1
+      StatSD   <- DP2
       Outputs <- self$results$Outputs
       Outputs$setRow(rowNo=1, values=list(
         DistributionResultColumn=OutputLabel11,

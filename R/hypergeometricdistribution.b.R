@@ -143,16 +143,16 @@ HypergeometricDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
             OutputLabel22 <- QuantileResult2}}
         # Mean = n*K/N, Variance = n*K*(N-K)*(N-n)/(N^2*(N-1))
         if (DP1 > 0 && DP2 >= 0 && DP3 >= 0 && DP2 <= DP1 && DP3 <= DP1) {
-          StatMeanStr <- format(round(DP3 * DP2 / DP1, 4), nsmall=0, scientific=FALSE)
+          StatMeanStr <- DP3 * DP2 / DP1
           if (DP1 > 1) {
             StatVar <- DP3 * DP2 * (DP1 - DP2) * (DP1 - DP3) / (DP1^2 * (DP1 - 1))
-            StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+            StatSDStr <- sqrt(StatVar)
           } else {
-            StatSDStr <- "undefined (N ≤ 1)"
+            StatSDStr <- NaN
           }
         } else {
-          StatMeanStr <- "undefined (invalid parameters)"
-          StatSDStr <- "undefined (invalid parameters)"
+          StatMeanStr <- NaN
+          StatSDStr <- NaN
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs

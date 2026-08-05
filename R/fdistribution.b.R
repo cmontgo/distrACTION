@@ -133,16 +133,15 @@ FDistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
         # Non-central F: Mean = df2*(df1+ncp)/(df1*(df2-2)) for df2 > 2
         # Var = 2*df2^2*[(df1+ncp)^2+(df1+2*ncp)*(df2-2)] / [df1^2*(df2-2)^2*(df2-4)] for df2 > 4
         if (DP2 > 2) {
-          StatMeanVal <- DP2*(DP1+DP3)/(DP1*(DP2-2))
-          StatMeanStr <- format(round(StatMeanVal, 4), nsmall=0, scientific=FALSE)
+          StatMeanStr <- DP2*(DP1+DP3)/(DP1*(DP2-2))
         } else {
-          StatMeanStr <- "undefined (df2 \u2264 2)"
+          StatMeanStr <- NaN
         }
         if (DP2 > 4) {
           StatVar <- 2*DP2^2*((DP1+DP3)^2+(DP1+2*DP3)*(DP2-2)) / (DP1^2*(DP2-2)^2*(DP2-4))
-          StatSDStr <- format(round(sqrt(StatVar), 4), nsmall=0, scientific=FALSE)
+          StatSDStr <- sqrt(StatVar)
         } else {
-          StatSDStr <- "undefined (df2 \u2264 4)"
+          StatSDStr <- NaN
         }
         # The Output-Matrix is written to the according Result-Frame
         Outputs <- self$results$Outputs
