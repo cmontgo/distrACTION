@@ -1,4 +1,4 @@
-# distrACTION
+# distrACTION - Quantiles and Probabilities of Continuous and Discrete Distributions
 
 distrACTION is a jamovi module for computing and visualising distribution probabilities and quantiles (cumulative and central) for common continuous and discrete probability models.
 
