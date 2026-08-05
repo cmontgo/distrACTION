@@ -14,7 +14,6 @@ distrACTION is a jamovi module for computing and visualising distribution probab
 - Binomial
 - Poisson
 - Geometric
-- Negative binomial
 - Hypergeometric
 
 ## Notes
