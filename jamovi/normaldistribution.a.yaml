@@ -68,4 +68,5 @@ options:
       title: SD =
       type: Number
       default: 1
+      min: 1e-10
 ...

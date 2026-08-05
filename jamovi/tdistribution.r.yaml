@@ -25,10 +25,6 @@ items:
       title: "Results"
       type: Table
       rows: 1
-      clearWith:
-        - group
-        - alt
-        - varEq
       columns:
         - name: DistributionResultColumn
           title: Probability

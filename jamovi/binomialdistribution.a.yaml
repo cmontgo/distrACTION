@@ -65,9 +65,12 @@ options:
       title: Size =
       type: Number
       default: 10
+      min: 0
 
     - name: dp2
       title: Probability =
       type: Number
       default: 0.5
+      min: 0
+      max: 1
 ...

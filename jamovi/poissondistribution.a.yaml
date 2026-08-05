@@ -54,4 +54,5 @@ options:
       title: λ =
       type: Number
       default: 10
+      min: 0
 ...

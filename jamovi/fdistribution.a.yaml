@@ -52,15 +52,18 @@ options:
       title: df1 =
       type: Number
       default: 3
+      min: 1
 
     - name: dp2
       title: df2 =
       type: Number
       default: 10
+      min: 1
       
     - name: dp3
       title: λ = 
       type: Number
       default: 0
+      min: 0
       
 ...

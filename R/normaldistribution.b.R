@@ -282,8 +282,8 @@ NormaldistributionClass <- if (requireNamespace('jmvcore')) R6::R6Class(
       ###### 1.4) Error Messages #####
       #Error if XValue\u2265XValue2
       if(((DistributionFunction=="TRUE") & (DistributionFunctionType=="interval"))&(XValue>=XValue2)){
-        Inputs$setError("x2 must be greater than x1. ")
-        Outputs$setVisible(visible=FALSE)}},
+        jmvcore::reject("x2 must be greater than x1")
+        }},
 
 
 
