@@ -66,7 +66,28 @@ test_that("ISSUE 4b: geometric errors out at p = 0", {
         "must be a finite number")
 })
 
-test_that("ISSUE 5: hypergeometric silently rewrites out-of-range parameters", {
+test_that("ISSUE 5: hypergeometric's invalid-parameter guard is unreachable", {
+    # hypergeometricdistribution.b.R clamps first:
+    #     DP1 <- max(1, dp1)
+    #     DP2 <- min(max(0, dp2), DP1)
+    #     DP3 <- min(max(0, dp3), DP1)
+    # and then guards:
+    #     if (DP1 > 0 && DP2 >= 0 && DP3 >= 0 && DP2 <= DP1 && DP3 <= DP1)
+    #     else -> "undefined (invalid parameters)"   [now NaN]
+    # The clamp on the line above makes every conjunct true by construction, so
+    # the else branch can never run. The warning was installed and then
+    # disabled two lines earlier.
+    guard_can_fail <- function(dp1, dp2, dp3) {
+        DP1 <- max(1, dp1); DP2 <- min(max(0, dp2), DP1); DP3 <- min(max(0, dp3), DP1)
+        !(DP1 > 0 && DP2 >= 0 && DP3 >= 0 && DP2 <= DP1 && DP3 <= DP1)
+    }
+    grid <- expand.grid(dp1 = c(-5, 0, 1, 20), dp2 = c(-5, 0, 10, 30, 1e6),
+                        dp3 = c(-5, 0, 5, 25, 1e6))
+    fired <- mapply(guard_can_fail, grid$dp1, grid$dp2, grid$dp3)
+    expect_failure(expect_true(any(fired)))   # nothing in this grid can trip it
+})
+
+test_that("ISSUE 5b: hypergeometric silently rewrites out-of-range parameters", {
     # DP2 <- min(max(0, dp2), DP1); DP3 <- min(max(0, dp3), DP1)
     # A student who types N = 20, K = 30, n = 25 gets an answer to a different
     # question with no warning - it is reported as if it were theirs.
