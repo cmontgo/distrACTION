@@ -20,16 +20,13 @@
 # what they need. That switch is what makes this a real net.
 # ---------------------------------------------------------------------------
 
+# helper-core.R has already sourced R/distribution-core.R if it exists.
 core_path <- testthat::test_path("..", "..", "R", "distribution-core.R")
 core_present <- file.exists(core_path)
 
-# Resolve the subject once, loudly.
 characterization_subject <- local({
     if (!core_present) return(reference_run)
-    specs_path <- testthat::test_path("..", "..", "R", "distribution-specs.R")
-    sys.source(core_path,  envir = globalenv())
-    if (file.exists(specs_path)) sys.source(specs_path, envir = globalenv())
-    if (!exists("distributionResults", envir = globalenv()))
+    if (!core_loaded)
         stop("R/distribution-core.R exists but does not define distributionResults(); ",
              "the characterization tests refuse to silently fall back to the ",
              "transcription they were generated from.")
