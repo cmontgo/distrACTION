@@ -6,3 +6,4 @@ temp/
 *.jmo
 .Rhistory
 .DS_Store
+tools/disagreements.rds
