@@ -19,6 +19,16 @@
 # gets stretched to that. Transcribed from v1.2.2.
 .dminMarker  <- 18
 
+# Plot window: how much tail to include, and how far from the median the window
+# may reach in interquartile ranges. The IQR cap is what keeps heavy tails
+# (Cauchy, chi-square with 1 df) from producing a window so wide the
+# distribution is a flat line.
+.dwindowAlpha <- 1e-4
+.dwindowIQR   <- 6
+# Never draw more bars, or more axis labels, than a 500px image can carry.
+.dmaxBars     <- 500
+.dmaxTicks    <- 25
+
 
 # --- options ---------------------------------------------------------------
 
@@ -63,18 +73,24 @@ centralBounds <- function(p) {
 #' @return list(probability, quantile, quantileLower, quantileUpper, mean, sd)
 distributionResults <- function(dist, o, distMode = NA, quantMode = NA) {
     spec <- if (is.character(dist)) distSpec(dist) else dist
-    if (!is.null(spec$clamp)) o <- spec$clamp(o)
+
+    # P(X = x1) for a fractional x1 is genuinely 0 - X only takes whole values -
+    # so R's "non-integer x" warning is noise in the jamovi log here. Only that
+    # one is muffled; anything else still surfaces.
+    density <- function(at) withCallingHandlers(spec$d(at, o), warning = function(w) {
+        if (grepl("non-integer", conditionMessage(w))) invokeRestart("muffleWarning")
+    })
 
     probability <- NA_real_
     if (!is.na(distMode)) {
         probability <- switch(distMode,
-            is       = spec$d(o$x1, o),
+            is       = density(o$x1),
             lower    = spec$p(o$x1, o),
             # A discrete tail includes its endpoint, so P(X >= x1) carries the
             # + d(x1) term back; a continuous one does not.
-            higher   = if (spec$discrete) 1 - spec$p(o$x1, o) + spec$d(o$x1, o)
+            higher   = if (spec$discrete) 1 - spec$p(o$x1, o) + density(o$x1)
                        else               1 - spec$p(o$x1, o),
-            interval = if (spec$discrete) spec$p(o$x2, o) - spec$p(o$x1, o) + spec$d(o$x1, o)
+            interval = if (spec$discrete) spec$p(o$x2, o) - spec$p(o$x1, o) + density(o$x1)
                        else               spec$p(o$x2, o) - spec$p(o$x1, o),
             stop("unknown distribution mode: ", distMode))
     }
@@ -97,17 +113,131 @@ distributionResults <- function(dist, o, distMode = NA, quantMode = NA) {
 }
 
 
+# --- validation ------------------------------------------------------------
+
+#' Check an option set before anything is computed.
+#'
+#' @return NULL if the options are usable, otherwise a message for the user.
+#'
+#' In v1.2.2 the only check ran at the very END of .run(), after a negative
+#' probability had already been written into the Results table, and the
+#' hypergeometric "corrected" out-of-range parameters instead of reporting them.
+distributionValidate <- function(spec, o) {
+    if (isTRUE(o$showDist) && identical(o$distMode, "interval") && o$x1 >= o$x2)
+        return("x2 must be greater than x1")
+
+    # Parameters that index a count have to be whole numbers: dbinom() and
+    # dhyper() return NaN for fractional size/N/K/n rather than complaining.
+    for (chk in spec$integerParams)
+        if (!isTRUE(all.equal(o[[chk$opt]], round(o[[chk$opt]]))))
+            return(paste0(chk$label, " must be a whole number"))
+
+    if (!is.null(spec$validate)) {
+        msg <- spec$validate(o)
+        if (!is.null(msg)) return(msg)
+    }
+    NULL
+}
+
+
 # --- the curve -------------------------------------------------------------
 
-#' The x grid and density used for the plot.
+#' The x range the plot covers.
 #'
-#' Continuous specs give a point count; discrete specs return NA from
-#' gridSize() and get their integer support instead.
-distributionCurve <- function(spec, o) {
-    w <- spec$window(o)
-    n <- spec$gridSize(o)
-    x <- if (is.na(n)) seq(w[1], w[2], by = 1) else seq(w[1], w[2], length = n)
+#' Discrete analyses get their integer support (capped, so a geometric with a
+#' tiny success probability cannot ask for a hundred million bars). Continuous
+#' analyses get a quantile window whose width is capped in interquartile ranges,
+#' then widened to include whatever the user actually asked about.
+#'
+#' A quantile window cannot invert, which is what the old per-distribution
+#' arithmetic did for a t with noncentrality below -1.
+distributionWindow <- function(spec, o) {
+    base <- if (!is.null(spec$window)) {
+        spec$window(o)                              # documented overrides only
+    } else if (spec$discrete) {
+        s  <- spec$support(o)
+        lo <- ceiling(s[1]); hi <- floor(s[2])
+        if (!is.finite(hi) || hi - lo > .dmaxBars) {
+            # Too many outcomes to draw. Fall back to the part of the support
+            # that carries the mass - which for a Poisson with a large lambda is
+            # nowhere near zero, so the window cannot simply start at the
+            # support's lower end and count upwards.
+            lo <- max(lo, floor(spec$q(.dwindowAlpha, o)))
+            hi <- min(hi, ceiling(spec$q(1 - .dwindowAlpha, o)))
+            if (!is.finite(hi) || hi - lo > .dmaxBars) hi <- lo + .dmaxBars
+        }
+        c(lo, hi)
+    } else {
+        med <- spec$q(0.5, o)
+        iqr <- spec$q(0.75, o) - spec$q(0.25, o)
+        c(max(spec$q(.dwindowAlpha, o),     med - .dwindowIQR * iqr),
+          min(spec$q(1 - .dwindowAlpha, o), med + .dwindowIQR * iqr))
+    }
+
+    # Whatever the user asked about must be on the picture, or the shaded area
+    # they are looking for is silently off-screen. This applies to the overrides
+    # too - a normal's +/- 4 SD window is no use when x1 sits at 6 SD.
+    marks <- c(o$x1, if (identical(o$distMode, "interval")) o$x2)
+    if (isTRUE(o$showQuant) && !is.null(o$p)) {
+        marks <- c(marks, if (identical(o$quantMode, "central")) {
+            b <- centralBounds(o$p); c(spec$q(b[["lower"]], o), spec$q(b[["upper"]], o))
+        } else spec$q(o$p, o))
+    }
+    marks <- marks[is.finite(marks)]
+    w <- range(c(base, marks))
+
+    # Widening for a mark must not push a discrete plot past the bar cap - and
+    # when it would, the body of the distribution wins. Truncating the union
+    # from its lower end instead would hand back a window of empty bars for,
+    # say, a Poisson with lambda 1000 and x1 = 1.
+    if (spec$discrete && w[2] - w[1] > .dmaxBars) {
+        spare <- max(0, .dmaxBars - (base[2] - base[1]))
+        w <- c(max(w[1], base[1] - spare), min(w[2], base[2] + spare))
+        if (w[2] - w[1] > .dmaxBars) w <- c(base[1], base[1] + .dmaxBars)
+    }
+    w
+}
+
+#' The x-axis break positions.
+#'
+#' One rule instead of eight. Only the Poisson used to thin its labels, which is
+#' why a binomial with size 100 drew 101 overlapping numbers.
+distributionBreaks <- function(spec, o, window) {
+    if (!is.null(spec$breaks)) return(spec$breaks(o, window))   # overrides only
+
+    if (spec$discrete) {
+        lo <- ceiling(window[1]); hi <- floor(window[2])
+        if (hi - lo + 1 <= .dmaxTicks) return(lo:hi)
+        return(unique(round(pretty(c(lo, hi), n = 12))))
+    }
+    pretty(window, n = 9)
+}
+
+#' The x grid and density used for the plot.
+distributionCurve <- function(spec, o, window = NULL) {
+    w <- if (is.null(window)) distributionWindow(spec, o) else window
+    x <- if (spec$discrete) seq(w[1], w[2], by = 1)
+         else               seq(w[1], w[2], length = 1000)
     data.frame(X = x, Prob = spec$d(x, o))
+}
+
+#' An upper limit for the y axis, or NA to leave it alone.
+#'
+#' The chi-square density with df < 2 and the F density with df1 < 2 both
+#' diverge at zero, so the tallest point on the grid can be thousands of times
+#' the height of the distribution's actual body - which flattens the curve, and
+#' the shaded probability with it, onto the axis. Capping at the tallest point
+#' from the lower quartile onwards restores the usual textbook view. The cap only
+#' engages when the raw maximum really is out of scale, so every well-behaved
+#' distribution is untouched.
+distributionYCap <- function(spec, o, curve) {
+    dens <- curve$Prob[is.finite(curve$Prob)]
+    if (!length(dens)) return(NA_real_)
+    raw <- max(dens)
+    body <- curve$Prob[curve$X >= spec$q(0.25, o) & is.finite(curve$Prob)]
+    if (!length(body)) return(NA_real_)
+    cap <- max(body)
+    if (is.finite(cap) && cap > 0 && raw > 2 * cap) cap * 1.05 else NA_real_
 }
 
 #' Blank out the part of the curve that falls outside the requested region, so
@@ -175,7 +305,12 @@ distributionMarkers <- function(spec, o, curve, window) {
 #' Generic .run() for every distribution analysis.
 runDistribution <- function(self, spec) {
     o <- distributionOptions(self)
-    if (!is.null(spec$clamp)) o <- spec$clamp(o)
+
+    # Validate first. v1.2.2 checked at the end of .run(), so an invalid
+    # interval wrote a negative probability into the Results table and set the
+    # plot state before rejecting.
+    invalid <- distributionValidate(spec, o)
+    if (!is.null(invalid)) jmvcore::reject(invalid)
 
     # Input table: parameters down the left, the two function summaries beside.
     lines <- spec$paramLines(o)
@@ -214,21 +349,29 @@ runDistribution <- function(self, spec) {
     } else {
         values$QuantileResultColumn <- blank(res$quantile)
     }
-    self$results$Outputs$setRow(rowNo = 1, values = values)
+    outputs <- self$results$Outputs
+    outputs$setRow(rowNo = 1, values = values)
+
+    # A number column cannot carry "undefined (df <= 1)", so say why in a
+    # footnote rather than leaving the student with a bare NaN.
+    if (!is.null(spec$momentNote)) {
+        note <- spec$momentNote(o)
+        for (col in names(note))
+            if (!is.null(note[[col]]) && is.function(outputs$addFootnote))
+                outputs$addFootnote(rowNo = 1, col, note[[col]])
+    }
 
     # Plot state: a named list, not values smuggled into data-frame cells.
-    window <- spec$window(o)
-    curve  <- distributionCurve(spec, o)
+    window <- distributionWindow(spec, o)
+    curve  <- distributionCurve(spec, o, window)
     shaded <- if (o$showDist) distributionShade(curve, o, o$distMode) else curve
     self$results$plot$setState(list(
         x = curve$X, density = curve$Prob, shaded = shaded$Prob,
-        breaks = spec$breaks(o, window),
+        breaks = distributionBreaks(spec, o, window),
+        yCap = if (spec$discrete) NA_real_ else distributionYCap(spec, o, curve),
         discrete = spec$discrete,
         showDist = o$showDist, showQuant = o$showQuant,
         markers = if (o$showQuant) distributionMarkers(spec, o, curve, window) else NULL))
-
-    if (o$showDist && identical(o$distMode, "interval") && o$x1 >= o$x2)
-        jmvcore::reject("x2 must be greater than x1")
 
     invisible(NULL)
 }
@@ -278,6 +421,17 @@ plotDistribution <- function(self, image, spec) {
         ggplot2::theme(legend.text = ggplot2::element_text(size = textSize),
                        legend.title = ggplot2::element_blank())
 
-    print(plot)
+    # coord_cartesian clips the view; scale_y_continuous(limits=) would drop the
+    # rows instead and take the shaded area with them.
+    if (!is.null(st$yCap) && is.finite(st$yCap))
+        plot <- plot + ggplot2::coord_cartesian(ylim = c(0, st$yCap))
+
+    # The unshaded part of the curve is blanked with NA on purpose, so ggplot2's
+    # "Removed N rows containing non-finite values" is expected here and only
+    # amounts to noise in the jamovi log. Anything else still surfaces.
+    withCallingHandlers(print(plot), warning = function(w) {
+        if (grepl("Removed .* (rows|row) containing", conditionMessage(w)))
+            invokeRestart("muffleWarning")
+    })
     TRUE
 }

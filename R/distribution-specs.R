@@ -6,10 +6,10 @@
 # whether the endpoint belongs to the tail, the closed-form moments, the labels
 # for the Input table, and the modes the analysis offers.
 #
-# The plot window, grid and axis-break entries are transcribed as-is from
-# v1.2.2 so the extraction is behaviour-preserving. They are replaced by shared
-# rules in a later commit; see tests/testthat/test-known-issues.R for what is
-# wrong with them.
+# Plot windows and axis breaks now come from the shared rules in
+# distribution-core.R. A spec may override them, but only with a reason worth
+# writing down - the normal is the sole case, because sigma-spaced ticks carry
+# the empirical rule that the rest of a stats course is built on.
 # ---------------------------------------------------------------------------
 
 #' Build one distribution spec.
@@ -20,16 +20,20 @@
 #' @param paramLines function(options) -> character vector, one Input-table row each
 #' @param distModes  subset of c("is", "lower", "higher", "interval")
 #' @param quantModes subset of c("cumulative", "central")
-#' @param window     function(options) -> c(lower, upper), the plotted x range
-#' @param gridSize   function(options) -> number of points, or NA for the integer support
-#' @param breaks     function(options, window) -> x-axis break positions
-#' @param clamp      optional function(options) -> options, applied before anything else
+#' @param momentNote optional function(options) -> list(MeanColumn=, SDColumn=) footnotes
+#' @param support    discrete only: function(options) -> c(lowest, highest) outcome
+#' @param integerParams list of list(opt=, label=) for parameters that must be whole
+#' @param validate   optional function(options) -> message, or NULL when valid
+#' @param window     optional override, function(options) -> c(lower, upper)
+#' @param breaks     optional override, function(options, window) -> break positions
 distSpecNew <- function(discrete, d, p, q, moments, paramLines,
-                        distModes, quantModes, window, gridSize, breaks,
-                        clamp = NULL) {
+                        distModes, quantModes, support = NULL,
+                        integerParams = list(), validate = NULL,
+                        window = NULL, breaks = NULL, momentNote = NULL) {
     list(discrete = discrete, d = d, p = p, q = q, moments = moments,
          paramLines = paramLines, distModes = distModes, quantModes = quantModes,
-         window = window, gridSize = gridSize, breaks = breaks, clamp = clamp)
+         support = support, integerParams = integerParams, validate = validate,
+         window = window, breaks = breaks, momentNote = momentNote)
 }
 
 .distSpecs <- list(
@@ -44,9 +48,10 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         paramLines = function(o) c(paste0("Mean = ", o$dp1), paste0("SD = ", o$dp2)),
         distModes  = c("lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
-        window   = function(o) c(o$dp1 - 4 * o$dp2, o$dp1 + 4 * o$dp2),
-        gridSize = function(o) 1000,
-        breaks   = function(o, w) seq(w[1], w[2], by = o$dp2)),
+        # Deliberate override: +/- 4 SD with ticks every SD, so the axis reads
+        # off the empirical rule (68/95/99.7) rather than round numbers.
+        window = function(o) c(o$dp1 - 4 * o$dp2, o$dp1 + 4 * o$dp2),
+        breaks = function(o, w) seq(w[1], w[2], by = o$dp2)),
 
     # ---- t ---------------------------------------------------------------
     t = distSpecNew(
@@ -63,21 +68,14 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
             list(mean = mu, sd = sd)
         },
         paramLines = function(o) c(paste0("df = ", o$dp1), paste0("δ = ", o$dp2)),
+        momentNote = function(o) list(
+            MeanColumn = if (o$dp1 <= 1) "The mean of a t distribution is undefined for df ≤ 1",
+            SDColumn   = if (o$dp1 <= 2) "The SD of a t distribution is undefined for df ≤ 2"),
         distModes  = c("lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
-        # transcribed from tdistribution.b.R:36-61 - widens as df shrinks
-        window = function(o) {
-            m <- qt(0.5, df = o$dp1, ncp = o$dp2)
-            k <- if (o$dp1 < 2) 10 else if (o$dp1 < 3) 8 else if (o$dp1 < 5) 7 else
-                 if (o$dp1 < 6) 6 else if (o$dp1 < 11) 5 else 4
-            c(m - k, m + k * (o$dp2 + 1))
-        },
-        gridSize = function(o) 1000,
-        breaks = function(o, w) {
-            n <- if (o$dp1 < 2) 11 else if (o$dp1 < 3) 17 else if (o$dp1 < 5) 15 else
-                 if (o$dp1 < 6) 13 else if (o$dp1 < 11) 11 else 9
-            seq(ceiling(w[1]), floor(w[2]), length.out = n)
-        }),
+        # The old window was median - k, median + k*(ncp+1), which collapsed to
+        # zero width at ncp = -1 and inverted below it. Shared rule now.
+        integerParams = list(list(opt = "dp1", label = "df"))),
 
     # ---- Chi-square ------------------------------------------------------
     chi2 = distSpecNew(
@@ -90,15 +88,9 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         paramLines = function(o) c(paste0("df = ", o$dp1), paste0("λ = ", o$dp2)),
         distModes  = c("lower", "higher", "interval"),
         quantModes = "cumulative",
-        # transcribed from chi2distribution.b.R:34-41
-        window = function(o) {
-            lower <- 0; upper <- o$dp1 * 6 + o$dp2
-            if (o$dp1 > 4)  upper <- ceiling(qchisq(0.9999, o$dp1, o$dp2))
-            if (o$dp1 > 20) lower <- ceiling(qchisq(0.0001, o$dp1, o$dp2))
-            c(lower, upper)
-        },
-        gridSize = function(o) 1000,
-        breaks   = function(o, w) seq(w[1], w[2], by = 1)),
+        # The old window started at exactly 0, where the density diverges for
+        # df < 2; breaks stepped by 1 regardless of df. Shared rules now.
+        integerParams = list(list(opt = "dp1", label = "df"))),
 
     # ---- F ---------------------------------------------------------------
     f = distSpecNew(
@@ -114,24 +106,13 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
                             (o$dp1^2 * (o$dp2 - 2)^2 * (o$dp2 - 4))) else NaN),
         paramLines = function(o) c(paste0("df1 = ", o$dp1), paste0("df2 = ", o$dp2),
                                    paste0("λ = ", o$dp3)),
+        momentNote = function(o) list(
+            MeanColumn = if (o$dp2 <= 2) "The mean of an F distribution is undefined for df2 ≤ 2",
+            SDColumn   = if (o$dp2 <= 4) "The SD of an F distribution is undefined for df2 ≤ 4"),
         distModes  = c("lower", "higher", "interval"),
         quantModes = "cumulative",
-        # transcribed from fdistribution.b.R:36-44
-        window = function(o) {
-            lower <- 0
-            upper <- if (o$dp1 < 5) 15 else 10
-            if (((upper - lower) / 2) > (qf(0.9999, o$dp1, o$dp2, o$dp3) - lower))
-                upper <- ceiling(qf(0.9995, o$dp1, o$dp2, o$dp3) * 2) / 2
-            c(lower, upper)
-        },
-        gridSize = function(o) 1000,
-        breaks = function(o, w) {
-            special <- !identical(w[2], if (o$dp1 < 5) 15 else 10)
-            b <- seq(w[1], ceiling(w[2]), by = 1)
-            if (special && length(b) < 5)
-                b <- seq(w[1], ceiling(w[2]), by = 0.25)
-            b
-        }),
+        integerParams = list(list(opt = "dp1", label = "df1"),
+                             list(opt = "dp2", label = "df2"))),
 
     # ---- Binomial --------------------------------------------------------
     binomial = distSpecNew(
@@ -144,9 +125,8 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         paramLines = function(o) c(paste0("Size = ", o$dp1), paste0("Prob. = ", o$dp2)),
         distModes  = c("is", "lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
-        window   = function(o) c(0, o$dp1),
-        gridSize = function(o) NA,
-        breaks   = function(o, w) seq(0, o$dp1, by = 1)),
+        support = function(o) c(0, o$dp1),
+        integerParams = list(list(opt = "dp1", label = "Size"))),
 
     # ---- Poisson ---------------------------------------------------------
     poisson = distSpecNew(
@@ -158,14 +138,9 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         paramLines = function(o) c(paste0("λ = ", o$dp1), ""),
         distModes  = c("is", "lower", "higher", "interval"),
         quantModes = "cumulative",
-        window   = function(o) c(0, ceiling(qpois(0.99999, o$dp1))),
-        gridSize = function(o) NA,
-        # the only analysis that thins its breaks; poissondistribution.b.R:165-171
-        breaks = function(o, w) {
-            N  <- w[2]
-            bw <- if (N > 100) floor(N / 100) * 10 else if (N > 50) floor(N / 50) * 5 else 1
-            seq(w[1], N, by = bw)
-        }),
+        # This was the only analysis that thinned its axis labels. That rule is
+        # now shared, so the other seven get it too.
+        support = function(o) c(0, ceiling(qpois(0.99999, o$dp1)))),
 
     # ---- Geometric -------------------------------------------------------
     geom = distSpecNew(
@@ -180,9 +155,10 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         paramLines = function(o) c(paste0("Prob. = ", o$dp1), ""),
         distModes  = c("is", "lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
-        window   = function(o) c(0, ceiling(qgeom(0.99999, o$dp1))),
-        gridSize = function(o) NA,
-        breaks   = function(o, w) seq(w[1], w[2], by = 1)),
+        # qgeom(0.99999, p) reaches 1.15e11 at the option minimum the YAML used
+        # to allow, and the old code turned that straight into data-frame rows.
+        # The shared window caps the bar count; the YAML minimum was raised too.
+        support = function(o) c(0, ceiling(qgeom(0.99999, o$dp1)))),
 
     # ---- Hypergeometric --------------------------------------------------
     # Parameter mapping: dp1 = N (population), dp2 = K (successes), dp3 = n
@@ -192,28 +168,33 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         d = function(x, o)  dhyper(x, o$dp2, o$dp1 - o$dp2, o$dp3),
         p = function(q, o)  phyper(q, o$dp2, o$dp1 - o$dp2, o$dp3),
         q = function(pr, o) qhyper(pr, o$dp2, o$dp1 - o$dp2, o$dp3),
-        moments = function(o)
-            # This guard is unreachable while clamp() below is in place - the
-            # clamp forces every conjunct true. Kept faithful to v1.2.2 for now;
-            # both are replaced by real validation in a later commit.
-            if (o$dp1 > 0 && o$dp2 >= 0 && o$dp3 >= 0 && o$dp2 <= o$dp1 && o$dp3 <= o$dp1)
-                list(mean = o$dp3 * o$dp2 / o$dp1,
-                     sd = if (o$dp1 > 1)
-                              sqrt(o$dp3 * o$dp2 * (o$dp1 - o$dp2) * (o$dp1 - o$dp3) /
-                                   (o$dp1^2 * (o$dp1 - 1))) else NaN)
-            else list(mean = NaN, sd = NaN),
+        # No guard needed: validate() below rejects out-of-range parameters
+        # before anything is computed. v1.2.2 clamped them into range first,
+        # which made its guard unreachable and answered a question the student
+        # had not asked.
+        moments = function(o) list(
+            mean = o$dp3 * o$dp2 / o$dp1,
+            sd   = if (o$dp1 > 1)
+                       sqrt(o$dp3 * o$dp2 * (o$dp1 - o$dp2) * (o$dp1 - o$dp3) /
+                            (o$dp1^2 * (o$dp1 - 1))) else NaN),
         paramLines = function(o) c(paste0("N = ", o$dp1),
                                    paste0("K = ", o$dp2, ", n = ", o$dp3)),
+        momentNote = function(o) list(
+            SDColumn = if (o$dp1 <= 1) "The SD is undefined for a population of one"),
         distModes  = c("is", "lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
-        window   = function(o) c(max(0, o$dp3 - (o$dp1 - o$dp2)), min(o$dp3, o$dp2)),
-        gridSize = function(o) NA,
-        breaks   = function(o, w) seq(w[1], w[2], by = 1),
-        clamp = function(o) {
-            o$dp1 <- max(1, o$dp1)
-            o$dp2 <- min(max(0, o$dp2), o$dp1)
-            o$dp3 <- min(max(0, o$dp3), o$dp1)
-            o
+        support = function(o) c(max(0, o$dp3 - (o$dp1 - o$dp2)), min(o$dp3, o$dp2)),
+        integerParams = list(list(opt = "dp1", label = "Population size (N)"),
+                             list(opt = "dp2", label = "Successes in population (K)"),
+                             list(opt = "dp3", label = "Sample size (n)")),
+        validate = function(o) {
+            if (o$dp1 < 1)
+                return("Population size (N) must be at least 1")
+            if (o$dp2 > o$dp1)
+                return("Successes in population (K) cannot exceed population size (N)")
+            if (o$dp3 > o$dp1)
+                return("Sample size (n) cannot exceed population size (N)")
+            NULL
         })
 )
 

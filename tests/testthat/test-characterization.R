@@ -43,9 +43,42 @@ test_that("the fixture is present and intact", {
                     (fx$probability >= -1e-12 & fx$probability <= 1 + 1e-12)))
 })
 
+# Rows the fixture recorded that v1.3 deliberately no longer computes.
+#
+# v1.2.2 clamped out-of-range hypergeometric parameters into range and answered
+# the clamped question silently. v1.3 rejects them instead, so those rows have
+# no v1.3 counterpart by design. Everything else must still match to the bit.
+fixtureRejected <- function(fx) {
+    if (!core_present) return(rep(FALSE, nrow(fx)))
+    vapply(seq_len(nrow(fx)), function(i) {
+        r <- fx[i, ]
+        o <- list(dp1 = r$dp1, dp2 = r$dp2, dp3 = r$dp3, x1 = r$x1, x2 = r$x2,
+                  p = r$p, showDist = !is.na(r$distMode), distMode = r$distMode,
+                  showQuant = !is.na(r$quantMode), quantMode = r$quantMode)
+        !is.null(distributionValidate(distSpec(r$dist), o))
+    }, logical(1))
+}
+
+test_that("the only rows v1.3 stops computing are the ones it now rejects", {
+    skip_if_not(core_present)
+    fx <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
+    rej <- fixtureRejected(fx)
+
+    # Every rejected row is hypergeometric with K or n exceeding N - the case
+    # v1.2.2 silently clamped. Nothing else may have been swept up.
+    expect_true(all(fx$dist[rej] == "hyper"))
+    expect_true(all(fx$dp2[rej] > fx$dp1[rej] | fx$dp3[rej] > fx$dp1[rej]))
+    # and the converse: every such row is rejected
+    bad <- fx$dist == "hyper" & (fx$dp2 > fx$dp1 | fx$dp3 > fx$dp1)
+    expect_identical(rej, bad)
+})
+
 test_that(paste0("every recorded result reproduces exactly (subject: ",
                  if (core_present) "distribution-core" else "v1.2.2 transcription", ")"), {
-    fx <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
+    fx  <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
+    rej <- fixtureRejected(fx)
+    fx  <- fx[!rej, ]
+    expect_gt(nrow(fx), 3000)   # the exclusions must stay a small minority
 
     mismatches <- list()
     for (i in seq_len(nrow(fx))) {

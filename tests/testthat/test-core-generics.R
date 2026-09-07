@@ -50,8 +50,8 @@ test_that("runDistribution fills both tables and sets plot state", {
         # plot state is a named list, not values hidden in data-frame cells
         expect_type(got$state, "list")
         expect_setequal(names(got$state),
-                        c("x", "density", "shaded", "breaks", "discrete",
-                          "showDist", "showQuant", "markers"))
+                        c("x", "density", "shaded", "breaks", "yCap",
+                          "discrete", "showDist", "showQuant", "markers"))
         expect_equal(length(got$state$x), length(got$state$density))
         expect_equal(length(got$state$x), length(got$state$shaded))
         expect_identical(got$state$discrete, spec$discrete)
@@ -106,4 +106,29 @@ test_that("shading covers exactly the requested region", {
                                        info = paste(nm, dm)))
         }
     }
+})
+
+test_that("an undefined moment is explained, not left as a bare NaN", {
+    # t with 1 df has no mean and no SD; the columns are typed `number` and
+    # cannot hold "undefined (df <= 1)", so the reason goes in a footnote.
+    got <- mockRun("t", list(dp1 = 1, dp2 = 0, x1 = 0, x2 = 1))
+    expect_true(is.nan(got$outputs$MeanColumn))
+    expect_true(is.nan(got$outputs$SDColumn))
+    cols <- vapply(got$notes, function(n) n$col, "")
+    expect_setequal(cols, c("MeanColumn", "SDColumn"))
+    expect_match(got$notes[[1]]$text, "undefined for df")
+
+    # df of 4 has a mean but no SD
+    got <- mockRun("t", list(dp1 = 4, dp2 = 0, x1 = 0, x2 = 1))
+    expect_true(is.finite(got$outputs$MeanColumn))
+    expect_length(got$notes, 0)
+
+    # F with df2 = 3: mean defined, SD not
+    got <- mockRun("f", list(dp1 = 3, dp2 = 3, dp3 = 0, x1 = 1, x2 = 2))
+    expect_true(is.finite(got$outputs$MeanColumn))
+    expect_true(is.nan(got$outputs$SDColumn))
+    expect_identical(vapply(got$notes, function(n) n$col, ""), "SDColumn")
+
+    # a well-behaved analysis gets no footnotes at all
+    expect_length(mockRun("normal", list(dp1 = 0, dp2 = 1))$notes, 0)
 })

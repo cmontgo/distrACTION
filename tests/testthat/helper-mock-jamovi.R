@@ -12,10 +12,13 @@
 # ---------------------------------------------------------------------------
 
 mockTable <- function() {
-    rows <- list()
+    rows <- list(); notes <- list()
     list(
         setRow = function(rowNo, values) rows[[rowNo]] <<- values,
-        rows   = function() rows)
+        addFootnote = function(rowNo, col, text)
+            notes[[length(notes) + 1]] <<- list(rowNo = rowNo, col = col, text = text),
+        rows   = function() rows,
+        notes  = function() notes)
 }
 
 # An environment, not a list with an S3 `$` method: plotDistribution() lives in
@@ -54,6 +57,7 @@ mockRun <- function(distName, opts) {
     list(analysis = a,
          inputs   = a$results$Inputs$rows(),
          outputs  = a$results$Outputs$rows()[[1]],
+         notes    = a$results$Outputs$notes(),
          state    = a$results$plot$state)
 }
 

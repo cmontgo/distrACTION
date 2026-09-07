@@ -1,58 +1,62 @@
 # Tests
 
-## Why this shape
-
-The eight `R/<dist>.b.R` files are between 67% and 86% textually identical, and
-each one defines exactly two functions: `.run()` and `.plot()`. All ~3,000 lines
-of logic live inside those sixteen methods, which means there is currently
-nothing a unit test can call. Everything is reachable only by standing up a full
-jamovi analysis.
-
-That is also why the same bug tends to exist in seven copies. The Poisson module
-learned to thin its x-axis breaks when the parameter gets large; the other seven
-never did.
-
-So the suite is deliberately layered, cheapest first:
-
-| File | Needs | Covers |
-| --- | --- | --- |
-| `test-probability-math.R` | base R only | the numbers in the Results table |
-| `test-plot-window.R` | base R only | invariants the plot must satisfy |
-| `test-known-issues.R` | base R only | open defects, pinned |
-| `test-analysis-smoke.R` | jmvcore | the analyses actually run and render |
-
-The first three run anywhere, in about a second. The fourth skips itself when
-jmvcore is not installed.
-
 ## Running
 
 ```r
-# no installation needed
-testthat::test_dir("tests/testthat")
-
-# or, once the package is installed
-testthat::test_local()
+testthat::test_dir("tests/testthat")     # no installation needed
+testthat::test_local()                   # once the package is installed
 ```
 
-## The helper layer is temporary
+Roughly 520 assertions, a few seconds. Only the smoke tests need jamovi; they
+skip themselves when jmvcore is absent (it is not on CRAN).
 
-`helper-distributions.R` re-implements the plot-window, grid and axis-break
-arithmetic that currently lives inline inside each `.run()`. That duplication is
-a smell, and an intentional one: it is the scaffolding that lets the invariants
-be tested today.
+## Layout
 
-The intended next step is to lift that arithmetic out of the eight `.b.R` files
-into shared functions in `R/` - something like `R/distribution-core.R` holding a
-per-distribution spec (density, cdf, quantile, support, plot window, break rule)
-plus one generic `.run()` and one generic `.plot()`. At that point:
+| File | Needs | Covers |
+| --- | --- | --- |
+| `test-characterization.R` | base R | every Results-table number, against the v1.2.2 fixture |
+| `test-probability-math.R` | base R | the arithmetic itself: critical values, tail identities, moments |
+| `test-validation.R` | base R | what gets rejected, and what deliberately does not |
+| `test-plot-window.R` | base R | invariants the plot must satisfy |
+| `test-core-generics.R` | ggplot2 | `runDistribution()` / `plotDistribution()` end to end |
+| `test-analysis-smoke.R` | jmvcore | the real R6 classes run and render |
 
-- delete `helper-distributions.R` and point the tests at the real functions,
-- the seven remaining copies of each bug collapse into one place to fix,
-- adding the negative binomial becomes a table entry rather than a 400-line file.
+Helpers: `helper-core.R` sources `R/` directly, `helper-mock-jamovi.R` stands in
+for the jmvcore objects the generics touch, and `helper-reference-run.R` holds
+the v1.2.2 transcription the fixture was built from.
 
-## `test-known-issues.R`
+## The characterization fixture
 
-Each block asserts the invariant that *should* hold, wrapped in
-`expect_failure()` because it currently does not. The suite stays green while
-the bug is open and turns red the day it is fixed - at which point delete the
-wrapper and move the assertion into `test-plot-window.R`.
+`fixtures/reference-values.rds` records what v1.2.2 computed for 3,732 option
+combinations — every analysis crossed with every distribution mode and every
+quantile mode, over a parameter grid. It is the safety net for the 1.3 refactor:
+the arithmetic was correct before, so the job was to prove it did not move.
+
+Regenerate with `Rscript tools/make-reference-fixture.R`. That script computes
+every value twice by independent routes — the transcription in
+`helper-reference-run.R`, and direct summation over the support (discrete) or
+complementary-tail routines and Monte Carlo (continuous) — and refuses to write
+the file unless the two agree. A typo in the transcription cannot become the
+specification.
+
+Probabilities and quantiles are checked exactly; moments statistically, with the
+tolerance scaled by the Monte Carlo standard error rather than relatively, since
+a true mean of zero admits no relative tolerance.
+
+`test-characterization.R` also asserts that the *only* fixture rows v1.3 no
+longer computes are the hypergeometric ones with K or n exceeding N — the case
+v1.2.2 silently clamped and v1.3 rejects. Anything else dropping out is a
+regression, not a design decision.
+
+## Notes
+
+`helper-mock-jamovi.R` builds its image as an environment rather than a list
+with an S3 `$` method. `plotDistribution()` lives in a different environment, so
+dispatch would not reach it and `image$state` would silently read as `NULL` —
+which looks exactly like a plot that legitimately has no state yet.
+
+`test-known-issues.R` and `helper-distributions.R` are gone. They existed
+because the window and axis-break arithmetic was buried inside eight copies of
+`.run()` with nothing to call, so the invariants had to be written against a
+transcription and pinned with `expect_failure()`. Both are now real assertions
+against `R/distribution-core.R` in `test-plot-window.R`.
