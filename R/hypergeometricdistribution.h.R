@@ -61,17 +61,20 @@ HypergeometricDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRU
                 "x2",
                 x2,
                 default=1)
-            private$..dp1 <- jmvcore::OptionNumber$new(
+            private$..dp1 <- jmvcore::OptionInteger$new(
                 "dp1",
                 dp1,
+                min=1,
                 default=20)
-            private$..dp2 <- jmvcore::OptionNumber$new(
+            private$..dp2 <- jmvcore::OptionInteger$new(
                 "dp2",
                 dp2,
+                min=0,
                 default=10)
-            private$..dp3 <- jmvcore::OptionNumber$new(
+            private$..dp3 <- jmvcore::OptionInteger$new(
                 "dp3",
                 dp3,
+                min=0,
                 default=5)
 
             self$.addOption(private$..DistributionFunction)
@@ -148,10 +151,6 @@ HypergeometricDistributionResults <- if (requireNamespace("jmvcore", quietly=TRU
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

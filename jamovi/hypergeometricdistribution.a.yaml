@@ -63,19 +63,19 @@ options:
 
     - name: dp1
       title: Population Size (N) =
-      type: Number
+      type: Integer
       min: 1
       default: 20
 
     - name: dp2
       title: Successes in Population (K) =
-      type: Number
+      type: Integer
       min: 0
       default: 10
 
     - name: dp3
       title: Sample Size (n) =
-      type: Number
+      type: Integer
       min: 0
       default: 5
 ...

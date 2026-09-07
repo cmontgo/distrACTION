@@ -55,14 +55,17 @@ FDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             private$..dp1 <- jmvcore::OptionNumber$new(
                 "dp1",
                 dp1,
+                min=1,
                 default=3)
             private$..dp2 <- jmvcore::OptionNumber$new(
                 "dp2",
                 dp2,
+                min=1,
                 default=10)
             private$..dp3 <- jmvcore::OptionNumber$new(
                 "dp3",
                 dp3,
+                min=0,
                 default=0)
 
             self$.addOption(private$..DistributionFunction)
@@ -136,10 +139,6 @@ FDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

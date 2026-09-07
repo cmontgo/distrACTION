@@ -60,13 +60,16 @@ BinomialDistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
                 "x2",
                 x2,
                 default=1)
-            private$..dp1 <- jmvcore::OptionNumber$new(
+            private$..dp1 <- jmvcore::OptionInteger$new(
                 "dp1",
                 dp1,
+                min=0,
                 default=10)
             private$..dp2 <- jmvcore::OptionNumber$new(
                 "dp2",
                 dp2,
+                min=0,
+                max=1,
                 default=0.5)
 
             self$.addOption(private$..DistributionFunction)
@@ -140,10 +143,6 @@ BinomialDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

@@ -75,7 +75,11 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         quantModes = c("cumulative", "central"),
         # The old window was median - k, median + k*(ncp+1), which collapsed to
         # zero width at ncp = -1 and inverted below it. Shared rule now.
-        integerParams = list(list(opt = "dp1", label = "df"))),
+        #
+        # df is deliberately NOT constrained to whole numbers: dt() handles real
+        # df, and Welch-Satterthwaite produces fractional df routinely - which is
+        # exactly what someone checking a Welch t-test would type in here.
+        ),
 
     # ---- Chi-square ------------------------------------------------------
     chi2 = distSpecNew(
@@ -90,7 +94,8 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         quantModes = "cumulative",
         # The old window started at exactly 0, where the density diverges for
         # df < 2; breaks stepped by 1 regardless of df. Shared rules now.
-        integerParams = list(list(opt = "dp1", label = "df"))),
+        # df is real-valued, as for the t.
+        ),
 
     # ---- F ---------------------------------------------------------------
     f = distSpecNew(
@@ -111,8 +116,8 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
             SDColumn   = if (o$dp2 <= 4) "The SD of an F distribution is undefined for df2 ≤ 4"),
         distModes  = c("lower", "higher", "interval"),
         quantModes = "cumulative",
-        integerParams = list(list(opt = "dp1", label = "df1"),
-                             list(opt = "dp2", label = "df2"))),
+        # df1 and df2 are real-valued, as for the t.
+        ),
 
     # ---- Binomial --------------------------------------------------------
     binomial = distSpecNew(

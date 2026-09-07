@@ -54,11 +54,12 @@ Chi2DistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6
             private$..dp1 <- jmvcore::OptionNumber$new(
                 "dp1",
                 dp1,
-                default=3,
-                min=1)
+                min=1,
+                default=3)
             private$..dp2 <- jmvcore::OptionNumber$new(
                 "dp2",
                 dp2,
+                min=0,
                 default=0)
 
             self$.addOption(private$..DistributionFunction)
@@ -129,10 +130,6 @@ Chi2DistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

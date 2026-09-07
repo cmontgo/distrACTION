@@ -52,9 +52,9 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
             private$..p <- jmvcore::OptionNumber$new(
                 "p",
                 p,
-                default=0.5,
                 min=0,
-                max=1)
+                max=1,
+                default=0.5)
             private$..x2 <- jmvcore::OptionNumber$new(
                 "x2",
                 x2,
@@ -66,6 +66,7 @@ NormaldistributionOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
             private$..dp2 <- jmvcore::OptionNumber$new(
                 "dp2",
                 dp2,
+                min=1e-10,
                 default=1)
 
             self$.addOption(private$..DistributionFunction)
@@ -139,10 +140,6 @@ NormaldistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 

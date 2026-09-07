@@ -63,7 +63,7 @@ options:
 
     - name: dp1
       title: Size =
-      type: Number
+      type: Integer
       default: 10
       min: 0
 

@@ -52,10 +52,13 @@ test_that("count parameters must be whole numbers", {
                  "Size must be a whole number")
     expect_match(distributionValidate(distSpec("hyper"), opts(dp1 = 20.5, dp2 = 10, dp3 = 5)),
                  "Population size \\(N\\) must be a whole number")
-    expect_match(distributionValidate(distSpec("chi2"), opts(dp1 = 3.5, dp2 = 0)),
-                 "df must be a whole number")
-    expect_match(distributionValidate(distSpec("f"), opts(dp1 = 3, dp2 = 10.5, dp3 = 0)),
-                 "df2 must be a whole number")
+
+    # Degrees of freedom are real-valued and must stay that way: dt(), dchisq()
+    # and df() all handle fractional df, and Welch-Satterthwaite produces it
+    # routinely. Rejecting it would break the commonest reason to open the t.
+    expect_null(distributionValidate(distSpec("t"),    opts(dp1 = 17.3, dp2 = 0)))
+    expect_null(distributionValidate(distSpec("chi2"), opts(dp1 = 3.5, dp2 = 0)))
+    expect_null(distributionValidate(distSpec("f"),    opts(dp1 = 3.5, dp2 = 10.5, dp3 = 0)))
 
     # lambda and the probabilities are genuinely continuous - leave them be
     expect_null(distributionValidate(distSpec("poisson"),  opts(dp1 = 3.5)))

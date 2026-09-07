@@ -140,10 +140,6 @@ TDistributionResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 name="Outputs",
                 title="Results",
                 rows=1,
-                clearWith=list(
-                    "group",
-                    "alt",
-                    "varEq"),
                 columns=list(
                     list(
                         `name`="DistributionResultColumn", 
