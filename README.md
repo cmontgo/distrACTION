@@ -1,7 +1,7 @@
 # distrACTION
 
 [![version](https://img.shields.io/badge/version-1.3.0-blue)](NEWS.md)
-[![license](https://img.shields.io/badge/license-GPL--3-blue)](https://www.gnu.org/licenses/gpl-3.0)
+[![license](https://img.shields.io/badge/license-GPL--3-blue)](LICENSE)
 [![tests](https://github.com/cmontgo/distrACTION/actions/workflows/tests.yml/badge.svg)](https://github.com/cmontgo/distrACTION/actions/workflows/tests.yml)
 
 **Quantiles and probabilities of continuous and discrete distributions** — a
@@ -105,4 +105,4 @@ Bug reports and feature requests:
 
 ## Licence
 
-GPL-3. See <https://www.gnu.org/licenses/gpl-3.0>.
+GPL-3 — see [LICENSE](LICENSE).
