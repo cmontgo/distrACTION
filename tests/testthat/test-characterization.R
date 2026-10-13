@@ -12,26 +12,12 @@
 # The arithmetic in v1.2.2 was correct. This file's job is to prove the refactor
 # did not move any of it.
 #
-# IMPORTANT: the subject under test switches automatically. While
-# R/distribution-core.R does not exist, these tests check the transcription
-# (which is what the fixture was built from, so they are near-tautological and
-# only prove the fixture round-trips). The moment that file appears, they check
-# the real core instead - and error rather than fall back if it does not expose
-# what they need. That switch is what makes this a real net.
+# The subject is the real core. Before the refactor there was a fallback to the
+# transcription the fixture was built from, for while the core did not exist
+# yet. The core now always exists, so that fallback could only ever do harm:
+# under R CMD check it engaged silently and the test compared the transcription
+# with itself. It is gone - if the core cannot be found, helper-core.R stops.
 # ---------------------------------------------------------------------------
-
-# helper-core.R has already sourced R/distribution-core.R if it exists.
-core_path <- testthat::test_path("..", "..", "R", "distribution-core.R")
-core_present <- file.exists(core_path)
-
-characterization_subject <- local({
-    if (!core_present) return(reference_run)
-    if (!core_loaded)
-        stop("R/distribution-core.R exists but does not define distributionResults(); ",
-             "the characterization tests refuse to silently fall back to the ",
-             "transcription they were generated from.")
-    get("distributionResults", envir = globalenv())
-})
 
 test_that("the fixture is present and intact", {
     fx <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
@@ -49,7 +35,6 @@ test_that("the fixture is present and intact", {
 # the clamped question silently. v1.3 rejects them instead, so those rows have
 # no v1.3 counterpart by design. Everything else must still match to the bit.
 fixtureRejected <- function(fx) {
-    if (!core_present) return(rep(FALSE, nrow(fx)))
     vapply(seq_len(nrow(fx)), function(i) {
         r <- fx[i, ]
         o <- list(dp1 = r$dp1, dp2 = r$dp2, dp3 = r$dp3, x1 = r$x1, x2 = r$x2,
@@ -60,7 +45,6 @@ fixtureRejected <- function(fx) {
 }
 
 test_that("the only rows v1.3 stops computing are the ones it now rejects", {
-    skip_if_not(core_present)
     fx <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
     rej <- fixtureRejected(fx)
 
@@ -73,8 +57,7 @@ test_that("the only rows v1.3 stops computing are the ones it now rejects", {
     expect_identical(rej, bad)
 })
 
-test_that(paste0("every recorded result reproduces exactly (subject: ",
-                 if (core_present) "distribution-core" else "v1.2.2 transcription", ")"), {
+test_that("every recorded result reproduces exactly", {
     fx  <- readRDS(testthat::test_path("fixtures", "reference-values.rds"))
     rej <- fixtureRejected(fx)
     fx  <- fx[!rej, ]
@@ -85,7 +68,7 @@ test_that(paste0("every recorded result reproduces exactly (subject: ",
         row <- fx[i, ]
         o <- list(dp1 = row$dp1, dp2 = row$dp2, dp3 = row$dp3,
                   x1 = row$x1, x2 = row$x2, p = row$p)
-        got <- characterization_subject(row$dist, o, row$distMode, row$quantMode)
+        got <- distributionResults(row$dist, o, row$distMode, row$quantMode)
 
         for (k in c("probability", "quantile", "quantileLower", "quantileUpper",
                     "mean", "sd")) {

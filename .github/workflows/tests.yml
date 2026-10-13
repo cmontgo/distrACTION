@@ -44,6 +44,17 @@ jobs:
                           stop(sprintf("%d test(s) skipped; CI must run the whole suite", skipped))
                       }'
 
+      # The suite above runs from the checkout. R CMD check runs it the way the
+      # package's own tests/testthat.R does - test_check() against the installed
+      # package, with no source tree in reach. That is a different context, and
+      # it is the one where the 1.3 harness first broke while test_dir stayed
+      # green. Fails on ERROR only: the remaining WARNINGs (no man pages, a
+      # non-ASCII title in a generated header) predate 1.3.
+      - name: R CMD check
+        run: |
+          R CMD build --no-manual .
+          _R_CHECK_FORCE_SUGGESTS_=false R CMD check --no-manual distrACTION_*.tar.gz
+
       # The generator recomputes every fixture value twice by independent
       # routes and exits non-zero if they disagree, so running it is the check.
       # Its output is NOT byte-compared: RDS compression is not stable across R

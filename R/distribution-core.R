@@ -316,8 +316,8 @@ runDistribution <- function(self, spec) {
     lines <- spec$paramLines(o)
     distLabel <- if (!o$showDist) "" else switch(o$distMode,
         is       = "Mode: P(X = x1)",
-        lower    = "Mode: P(X ≤ x1)",
-        higher   = "Mode: P(X ≥ x1)",
+        lower    = "Mode: P(X \u2264 x1)",
+        higher   = "Mode: P(X \u2265 x1)",
         interval = paste0("Mode: x2 = ", o$x2), "")
     quantLabel <- if (!o$showQuant || length(spec$quantModes) < 2) "" else
         switch(o$quantMode, cumulative = "cumulative mode", central = "central mode", "")

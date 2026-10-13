@@ -6,18 +6,11 @@
 # code was only reachable by opening the analysis in jamovi and looking at it.
 # ---------------------------------------------------------------------------
 
-converted <- function() {
-    # Only assert against analyses that have actually been moved onto the core.
-    Filter(function(n) {
-        f <- testthat::test_path("..", "..", "R",
-                                 paste0(switch(n, normal = "normal", t = "t", chi2 = "chi2",
-                                                f = "f", binomial = "binomial",
-                                                poisson = "poisson", geom = "geometric",
-                                                hyper = "hypergeometric"),
-                                        "distribution.b.R"))
-        file.exists(f) && any(grepl("runDistribution", readLines(f, warn = FALSE)))
-    }, names(.distSpecs))
-}
+# Every analysis. This used to be a filter that grepped R/<dist>.b.R for the
+# word runDistribution, so the tests could follow the refactor one file at a
+# time. Under R CMD check there are no source files to grep, the filter came
+# back empty, and three tests here silently looped over nothing.
+allAnalyses <- function() names(.distSpecs)
 
 # Representative options per distribution, chosen to be valid everywhere.
 sane <- list(
@@ -32,7 +25,7 @@ sane <- list(
 )
 
 test_that("runDistribution fills both tables and sets plot state", {
-    for (nm in converted()) {
+    for (nm in allAnalyses()) {
         spec <- distSpec(nm)
         got  <- mockRun(nm, sane[[nm]])
 
@@ -59,7 +52,7 @@ test_that("runDistribution fills both tables and sets plot state", {
 })
 
 test_that("the reported probability matches distributionResults directly", {
-    for (nm in converted()) {
+    for (nm in allAnalyses()) {
         o <- sane[[nm]]
         for (dm in distSpec(nm)$distModes) {
             got  <- mockRun(nm, c(o, list(DistributionFunctionType = dm)))
@@ -77,7 +70,7 @@ test_that("every mode of every converted analysis renders a plot", {
                       error = function(e) conditionMessage(e))
         if (!is.null(r)) failures <<- c(failures, paste0(nm, " [", what, "]: ", r))
     }
-    for (nm in converted()) {
+    for (nm in allAnalyses()) {
         spec <- distSpec(nm)
         for (dm in spec$distModes)
             for (qm in spec$quantModes)
@@ -91,7 +84,7 @@ test_that("every mode of every converted analysis renders a plot", {
 })
 
 test_that("shading covers exactly the requested region", {
-    for (nm in converted()) {
+    for (nm in allAnalyses()) {
         spec <- distSpec(nm)
         o <- sane[[nm]]
         for (dm in spec$distModes) {

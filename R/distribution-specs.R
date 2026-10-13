@@ -67,10 +67,10 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
                            ifelse(is.na(mu), 0, mu^2)) else NaN
             list(mean = mu, sd = sd)
         },
-        paramLines = function(o) c(paste0("df = ", o$dp1), paste0("δ = ", o$dp2)),
+        paramLines = function(o) c(paste0("df = ", o$dp1), paste0("\u03b4 = ", o$dp2)),
         momentNote = function(o) list(
-            MeanColumn = if (o$dp1 <= 1) "The mean of a t distribution is undefined for df ≤ 1",
-            SDColumn   = if (o$dp1 <= 2) "The SD of a t distribution is undefined for df ≤ 2"),
+            MeanColumn = if (o$dp1 <= 1) "The mean of a t distribution is undefined for df \u2264 1",
+            SDColumn   = if (o$dp1 <= 2) "The SD of a t distribution is undefined for df \u2264 2"),
         distModes  = c("lower", "higher", "interval"),
         quantModes = c("cumulative", "central"),
         # The old window was median - k, median + k*(ncp+1), which collapsed to
@@ -89,7 +89,7 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         q = function(pr, o) qchisq(pr, o$dp1, o$dp2),
         moments = function(o) list(mean = o$dp1 + o$dp2,
                                    sd = sqrt(2 * (o$dp1 + 2 * o$dp2))),
-        paramLines = function(o) c(paste0("df = ", o$dp1), paste0("λ = ", o$dp2)),
+        paramLines = function(o) c(paste0("df = ", o$dp1), paste0("\u03bb = ", o$dp2)),
         distModes  = c("lower", "higher", "interval"),
         quantModes = "cumulative",
         # The old window started at exactly 0, where the density diverges for
@@ -110,10 +110,10 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
                             (o$dp1 + 2 * o$dp3) * (o$dp2 - 2)) /
                             (o$dp1^2 * (o$dp2 - 2)^2 * (o$dp2 - 4))) else NaN),
         paramLines = function(o) c(paste0("df1 = ", o$dp1), paste0("df2 = ", o$dp2),
-                                   paste0("λ = ", o$dp3)),
+                                   paste0("\u03bb = ", o$dp3)),
         momentNote = function(o) list(
-            MeanColumn = if (o$dp2 <= 2) "The mean of an F distribution is undefined for df2 ≤ 2",
-            SDColumn   = if (o$dp2 <= 4) "The SD of an F distribution is undefined for df2 ≤ 4"),
+            MeanColumn = if (o$dp2 <= 2) "The mean of an F distribution is undefined for df2 \u2264 2",
+            SDColumn   = if (o$dp2 <= 4) "The SD of an F distribution is undefined for df2 \u2264 4"),
         distModes  = c("lower", "higher", "interval"),
         quantModes = "cumulative",
         # df1 and df2 are real-valued, as for the t.
@@ -140,7 +140,7 @@ distSpecNew <- function(discrete, d, p, q, moments, paramLines,
         p = function(q, o)  ppois(q, o$dp1),
         q = function(pr, o) qpois(pr, o$dp1),
         moments = function(o) list(mean = o$dp1, sd = sqrt(o$dp1)),
-        paramLines = function(o) c(paste0("λ = ", o$dp1), ""),
+        paramLines = function(o) c(paste0("\u03bb = ", o$dp1), ""),
         distModes  = c("is", "lower", "higher", "interval"),
         quantModes = "cumulative",
         # This was the only analysis that thinned its axis labels. That rule is
