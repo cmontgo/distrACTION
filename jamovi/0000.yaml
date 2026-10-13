@@ -10,7 +10,7 @@ authors:
   - Michael Rihs
   - Cameron Redsell-Montgomerie
 maintainer: Boris Mayer <boris.mayer@unibe.ch>
-date: '2026-09-07'
+date: '2026-10-13'
 type: R
 description: >-
   A tool for calculating and plotting probabilities and quantiles  (cumulative

@@ -46,12 +46,50 @@ test_that("every analysis runs at its defaults without erroring", {
         expect_no_error(default_calls[[nm]](), message = nm)
 })
 
-test_that("every analysis renders its plot without erroring", {
+# The public wrappers hand back results, not the analysis, so driving the real
+# render function means building the class directly. data must be supplied -
+# jmvcore's Analysis$run() reaches for a dataset reader otherwise.
+analysisFor <- function(base, args) {
+    ns <- asNamespace("distrACTION")
+    opts <- do.call(get(paste0(base, "Options"), envir = ns)$new, args)
+    a <- get(paste0(base, "Class"), envir = ns)$new(options = opts, data = data.frame())
+    a$run()
+    a
+}
+
+renderCases <- list(
+    Normaldistribution         = list(dp1 = 0,   dp2 = 1,  x1 = 1.96,  x2 = 2.5),
+    TDistribution              = list(dp1 = 10,  dp2 = -3, x1 = -2,    x2 = 1),
+    Chi2Distribution           = list(dp1 = 1,   dp2 = 0,  x1 = 3.84,  x2 = 6),
+    FDistribution              = list(dp1 = 1,   dp2 = 10, dp3 = 0, x1 = 4.96, x2 = 8),
+    BinomialDistribution       = list(dp1 = 100, dp2 = 0.5, x1 = 60,   x2 = 70),
+    PoissonDistribution        = list(dp1 = 1000, x1 = 1050, x2 = 1100),
+    GeometricDistribution      = list(dp1 = 0.05, x1 = 20,  x2 = 40),
+    HypergeometricDistribution = list(dp1 = 500, dp2 = 250, dp3 = 200, x1 = 90, x2 = 110))
+
+test_that("every analysis renders its plot through the real jamovi objects", {
     skip_if_no_jmvcore()
     skip_if_not_installed("ggplot2")
-    for (nm in names(default_calls)) {
-        res <- default_calls[[nm]]()
-        expect_no_error(print(res$plot), message = nm)
+
+    # Render to a temp file rather than the default device: ggplot2's print()
+    # with no device open drops an Rplots.pdf in the working directory.
+    f <- tempfile(fileext = ".png")
+    on.exit({ if (grDevices::dev.cur() > 1) grDevices::dev.off()
+              unlink(f) }, add = TRUE)
+
+    for (base in names(renderCases)) {
+        # the awkward parameter sets on purpose - a t with negative
+        # noncentrality, a chi-square with 1 df, a Poisson with lambda 1000
+        args <- c(renderCases[[base]],
+                  list(DistributionFunction = TRUE, QuantileFunction = TRUE,
+                       DistributionFunctionType = "higher", p = 0.95))
+        a <- analysisFor(base, args)
+        grDevices::png(f, width = 500, height = 400)
+        rendered <- tryCatch(a$.__enclos_env__$private$.plot(a$results$plot),
+                             error = function(e) conditionMessage(e))
+        grDevices::dev.off()
+        expect_identical(rendered, TRUE, label = paste(base, "render"))
+        expect_gt(file.info(f)$size, 0)
     }
 })
 

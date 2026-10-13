@@ -7,9 +7,9 @@ testthat::test_dir("tests/testthat")     # no installation needed
 testthat::test_local()                   # once the package is installed
 ```
 
-543 assertions. The smoke tests need jmvcore (on CRAN) and an installed
-distrACTION; they skip themselves when either is missing, which is why a bare
-`test_dir()` reports 539 with 4 skipped:
+The smoke tests need jmvcore (on CRAN) and an installed distrACTION; they skip
+themselves when either is missing, so a bare `test_dir()` reports four skips.
+To run the whole suite:
 
 ```sh
 Rscript -e 'install.packages("jmvcore")'
