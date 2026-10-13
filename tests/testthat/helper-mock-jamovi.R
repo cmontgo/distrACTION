@@ -2,10 +2,12 @@
 # A stand-in for the handful of jmvcore objects runDistribution() and
 # plotDistribution() actually touch.
 #
-# jmvcore is not on CRAN, so without this the generics - including all the plot
-# code - would only ever be exercised on a machine that happens to have jamovi
-# installed. The mock covers $options, the two result tables and the image, which
-# is the whole surface the core uses.
+# jmvcore is on CRAN, so test-analysis-smoke.R can drive the real classes. This
+# mock still earns its place: it exercises the generics - including every plot
+# path - without installing the package, which keeps the fast suite fast and
+# keeps a failure here pointing at the core rather than at the jamovi plumbing.
+# It covers $options, the two result tables and the image: the whole surface the
+# core touches. Its fidelity has been checked against the real objects.
 #
 # It deliberately does NOT stub jmvcore::reject(): rejection paths belong to
 # test-analysis-smoke.R, where the real thing is present.

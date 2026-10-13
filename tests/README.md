@@ -7,8 +7,15 @@ testthat::test_dir("tests/testthat")     # no installation needed
 testthat::test_local()                   # once the package is installed
 ```
 
-Roughly 520 assertions, a few seconds. Only the smoke tests need jamovi; they
-skip themselves when jmvcore is absent (it is not on CRAN).
+543 assertions. The smoke tests need jmvcore (on CRAN) and an installed
+distrACTION; they skip themselves when either is missing, which is why a bare
+`test_dir()` reports 539 with 4 skipped:
+
+```sh
+Rscript -e 'install.packages("jmvcore")'
+R CMD INSTALL .
+Rscript -e 'library(distrACTION); testthat::test_dir("tests/testthat")'
+```
 
 ## Layout
 

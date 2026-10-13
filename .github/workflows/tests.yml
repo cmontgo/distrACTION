@@ -16,18 +16,33 @@ jobs:
         with:
           use-public-rspm: true
 
-      # jmvcore is not on CRAN, so the package cannot be installed here. The
-      # suite is built to run against R/ directly for exactly this reason:
-      # test-analysis-smoke.R skips itself and the other five files still run.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: |
             any::testthat
             any::ggplot2
             any::R6
+            any::jmvcore
+
+      # Installing the package is what lets test-analysis-smoke.R run rather
+      # than skip: it drives the real R6 analysis classes against real jmvcore
+      # Table and Image objects, which is the one layer the mock in
+      # helper-mock-jamovi.R can only approximate.
+      - name: Install the package
+        run: R CMD INSTALL --no-multiarch .
 
       - name: Run the suite
-        run: Rscript -e 'testthat::test_dir("tests/testthat", stop_on_failure = TRUE)'
+        run: |
+          Rscript -e 'library(distrACTION)
+                      r <- testthat::test_dir("tests/testthat", stop_on_failure = TRUE)
+                      skipped <- sum(vapply(r, function(f)
+                          sum(vapply(f$results, function(e)
+                              inherits(e, "expectation_skip"), logical(1))), numeric(1)))
+                      if (skipped > 0) {
+                          # A skip here means jmvcore or the install did not take,
+                          # which would quietly drop the smoke tests from CI.
+                          stop(sprintf("%d test(s) skipped; CI must run the whole suite", skipped))
+                      }'
 
       # The generator recomputes every fixture value twice by independent
       # routes and exits non-zero if they disagree, so running it is the check.

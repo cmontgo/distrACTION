@@ -1,10 +1,12 @@
 # ---------------------------------------------------------------------------
 # End-to-end smoke tests through the real jamovi analysis classes.
 #
-# Skipped wherever jmvcore is unavailable (it is not on CRAN), so this file is
-# harmless on a machine that only has base R. On a dev box with jmvcore
-# installed it is the layer that catches "the analysis threw" regressions -
-# the kind that only show up as a red banner in jamovi.
+# jmvcore is on CRAN, so this normally runs: install.packages("jmvcore"), then
+# R CMD INSTALL the package. It skips itself where either is missing, so the
+# file stays harmless on a machine with only base R.
+#
+# This is the layer that catches "the analysis threw" regressions - the kind
+# that otherwise only show up as a red banner in jamovi.
 # ---------------------------------------------------------------------------
 
 skip_if_no_jmvcore <- function()
